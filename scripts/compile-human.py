@@ -79,7 +79,10 @@ for i in used:
     x, y, z = vertices[i]
     ax = abs(x)
     c, region = '#c09276', 'skin'
-    if y < -7.1:
+    hand_weight = sum(w for bone, w in per_vertex[i] if bones[bone]['name'].startswith(('wrist.', 'finger', 'metacarpal')))
+    if hand_weight > .15:
+        c, region = '#c09276', 'skin'
+    elif y < -7.1:
         c, region = '#333c42', 'boots'
     elif y < 1.8:
         c, region = '#3c4b57', 'trousers'

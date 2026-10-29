@@ -9,8 +9,9 @@
     "build": "remotion bundle src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types tests/run.ts",
-    "render:preview": "remotion render src/index.ts BackyardPreview out/backyard-preview.mp4 --codec=h264 --crf=20 --concurrency=2 --gl=swangle --log=info",
-    "licenses": "node scripts/licenses.mjs"
+    "licenses": "node scripts/licenses.mjs",
+    "plan:episode": "node --experimental-strip-types scripts/plan-episode.ts flying-armor",
+    "assemble:episode": "node --experimental-strip-types scripts/assemble-episode.ts"
   },
   "dependencies": {
     "@react-three/fiber": "9.2.0",

@@ -1,6 +1,5 @@
-import {useLayoutEffect, useMemo, useRef} from 'react';
-import {DataTexture, RGBAFormat, RepeatWrapping, SRGBColorSpace, InstancedMesh,
-  Object3D, BackSide} from 'three';
+import {useLayoutEffect, useMemo} from 'react';
+import {DataTexture, RGBAFormat, RepeatWrapping, SRGBColorSpace, BackSide} from 'three';
 
 function hash(x: number, y: number) {
   const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
@@ -50,37 +49,20 @@ function texture(kind: 'soil' | 'grass' | 'sky') {
 
 export function Terrain() {
   const maps = useMemo(() => ({soil: texture('soil'), grass: texture('grass'), sky: texture('sky')}), []);
+  maps.grass.repeat.set(25, 25);
   useLayoutEffect(() => () => Object.values(maps).forEach(map => map.dispose()), [maps]);
   return <group>
-    {/* An exposed soil section, rather than a rounded toy display platform. */}
-    <mesh position={[0, -1.2, -1.4]} castShadow receiveShadow>
-      <boxGeometry args={[12.6, 2.3, 9.6]}/>
-      <meshStandardMaterial map={maps.soil} bumpMap={maps.soil} bumpScale={.11} roughness={1}/>
+    {/* Continuous ground: the horizon and neighboring yards have real support. */}
+    <mesh position={[0, -.045, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[180, 180]}/>
+      <meshStandardMaterial map={maps.grass} bumpMap={maps.grass} bumpScale={.018} roughness={1}/>
     </mesh>
-    <mesh position={[0, -.045, -1.4]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <planeGeometry args={[12.6, 9.6]}/>
-      <meshStandardMaterial map={maps.grass} bumpMap={maps.grass} bumpScale={.025} roughness={1}/>
+    <mesh position={[2.8, -.037, -.8]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[1.7, .8]}/><meshStandardMaterial map={maps.soil} roughness={1}/>
     </mesh>
     <mesh position={[0, 0, 0]}>
-      <sphereGeometry args={[75, 40, 24]}/><meshBasicMaterial map={maps.sky} side={BackSide}/>
+      <sphereGeometry args={[75, 40, 24]}/><meshBasicMaterial map={maps.sky} side={BackSide} fog={false}/>
     </mesh>
   </group>;
 }
 
-export function Leaves({frame}: {frame: number}) {
-  const ref = useRef<InstancedMesh>(null);
-  useLayoutEffect(() => {
-    const m = new Object3D();
-    for (let i = 0; i < 240; i++) {
-      const angle = i * 2.39996, radius = .3 + Math.sqrt(hash(i, 3)) * 1.3;
-      m.position.set(Math.cos(angle) * radius, .3 + hash(i, 4) * 1.3, Math.sin(angle) * radius * .8);
-      m.rotation.set(hash(i, 5) * 2, angle + Math.sin(frame * .035 + i) * .045, hash(i, 6));
-      m.scale.set(.12 + hash(i, 8) * .12, .045, .07);
-      m.updateMatrix(); ref.current?.setMatrixAt(i, m.matrix);
-    }
-    if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
-  }, [frame]);
-  return <instancedMesh ref={ref} args={[undefined, undefined, 240]}>
-    <sphereGeometry args={[1, 8, 4]}/><meshStandardMaterial color="#626d46" roughness={.95}/>
-  </instancedMesh>;
-}
