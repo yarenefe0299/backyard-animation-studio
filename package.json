@@ -1,0 +1,32 @@
+{
+  "name": "backyard-animation-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Procedural 3D cartoon storytelling, adapted from remotion-dev/template-three",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "build": "remotion bundle src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types tests/motion.test.ts",
+    "render:preview": "remotion render src/index.ts BackyardPreview out/backyard-preview.mp4 --codec=h264 --crf=20 --concurrency=2 --gl=swangle --log=info",
+    "licenses": "node scripts/licenses.mjs"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.2.0",
+    "@remotion/cli": "4.0.539",
+    "@remotion/three": "4.0.539",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.539",
+    "three": "0.178.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "@types/react": "19.2.7",
+    "@types/three": "0.178.1",
+    "@types/web": "0.0.166",
+    "typescript": "5.9.3"
+  },
+  "engines": {"node": ">=22.18.0"}
+}

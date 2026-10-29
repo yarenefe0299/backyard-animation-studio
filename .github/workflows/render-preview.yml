@@ -1,0 +1,44 @@
+name: Render backyard preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: backyard-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Validate storyboard and types
+        run: npm run typecheck && npm test
+      - name: Bundle scene
+        run: npm run build
+      - name: Render only the ten-second proof
+        run: npm run render:preview
+      - name: Extract review frames and verify encoding
+        run: |
+          mkdir -p out/frames
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames -show_entries format=duration -of json out/backyard-preview.mp4 > out/probe.json
+          node scripts/verify-render.mjs
+          for frame in 30 100 150 180 210 262 290; do
+            ffmpeg -v error -i out/backyard-preview.mp4 -vf "select=eq(n\,$frame)" -frames:v 1 "out/frames/frame-$frame.png"
+          done
+      - name: Preserve dependency notices
+        if: always()
+        run: npm run licenses
+      - name: Upload preview and review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backyard-preview-${{ github.run_number }}
+          path: out/
+          retention-days: 3
+          if-no-files-found: warn
