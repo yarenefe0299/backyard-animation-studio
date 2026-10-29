@@ -31,7 +31,7 @@ review and merge it yourself:
    GitHub does not play MP4 files directly from an Actions artifact in its website.
 
 The workflow runs **only** through `workflow_dispatch`. No push, pull-request or
-scheduled renders. It uses standard `ubuntu-latest`, two Chromium workers, CPU
+scheduled renders. It uses standard `ubuntu-24.04`, two Chromium workers, CPU
 SwiftShader, and a hard **15-minute** job timeout. The repository is public, for
 which standard hosted runners are free under GitHub's current public-repository
 policy. No paid runner, API, subscription, remote media or GPU service is used.

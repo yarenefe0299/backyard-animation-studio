@@ -12,6 +12,26 @@
 
 ## Rendering status
 
+### First GitHub render: 2026-10-29
+
+Run 40879220130 rendered and encoded all 300 frames in about 150 seconds on a
+standard Ubuntu 26 CPU runner. The MP4 was uploaded despite the job failure.
+The post-render step failed with exit 127: `ffprobe: command not found`.
+The follow-up workflow explicitly installs FFmpeg (which includes ffprobe), pins
+the standard Ubuntu 24.04 image and updates actions to Node 24 releases.
+The revised workflow has not yet run on GitHub.
+
+The existing artifact was retrieved into Codex Cloud. Its actual MP4 passed the
+same verification assertions: H.264, 1080 × 1920, 30 fps, 300 frames, 10.000 seconds.
+Six extracted frames (30, 100, 150, 180, 210, 262) were visually inspected together.
+They show the same inventor/backyard, cardboard detaching and lying on the lawn,
+metal panel assembly and raised boots during hover. Captions are present.
+The entire MP4 has not been watched in real time. Surface pinching on several
+rounded armor pieces and abrupt paper/cardboard contact transitions need further
+art direction; the requested high-end Shorts polish has not been achieved.
+
+### Original pre-render status (historical)
+
 No video or still frames have been rendered in Codex Cloud, respecting the
 GitHub-Actions-only rendering requirement. The initial default branch contains
 only a README, so the new manual workflow must first be reviewed and merged by
