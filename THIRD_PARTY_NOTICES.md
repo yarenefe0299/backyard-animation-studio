@@ -33,7 +33,12 @@ inventory and these notices into `out/licenses`. The workflow uploads those file
 alongside the preview. Do not discard notices when redistributing source or
 dependency bundles. The lockfile pins all dependency versions.
 
-All backyard geometry, character design, motion, captions and story in this
-implementation are original procedural work. No third-party media, superhero
-models, music, textures, fonts or synthetic voices are bundled or downloaded.
+The reference-style revision uses MakeHuman's CC0 hm08 human base mesh, male
+morph, skeleton and skin weights, compiled into src/assets/inventor.json. Full
+provenance, source commit, copyright notices and reproduction details are in
+assets/MAKEHUMAN.md; the complete CC0 text is in licenses/MakeHuman-CC0.txt. No
+MakeHuman application code is imported. Workwear colors, armor, motion, captions,
+backyard geometry and procedural terrain/sky textures are independently authored.
+No creator footage, superhero models, third-party audio, fonts or synthetic voices
+are bundled.
 System Arial/sans-serif is used for captions. The preview has no audio track.

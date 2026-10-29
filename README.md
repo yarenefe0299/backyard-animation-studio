@@ -8,21 +8,24 @@ needs to be installed on your Mac.
 The first deliverable is **BackyardPreview**, a 10-second, 300-frame 3D proof of
 concept at **1080 × 1920, 30 fps**. It contains an original inventor in one fixed
 backyard, a hand-held armor sketch, a cardboard failure, assembling titanium-gray
-and turquoise panels, and a short unstable fictional hover. It uses articulated
-joint hierarchies, animated facial expressions, soft shadow filtering, rounded
-geometry, animated foliage and laundry, and four moving camera setups. Captions
-carry the joke; this proof has no audio track.
+and turquoise panels, and a short unstable fictional hover. The revised visual direction follows the user's supplied reference screenshots:
+proportional humans, subdued materials, a textured soil cutaway, scene-focused
+cameras and white outlined word captions. The actor uses a detailed CC0 MakeHuman
+mesh and actual skin weights, with bone-attached armor. The source, compiler and
+notices are documented in [assets/MAKEHUMAN.md](assets/MAKEHUMAN.md). The new design
+has passed software checks but has not yet been rendered or visually accepted.
+This proof still has no audio track.
 
 ## Render from the GitHub website
 
-This new workflow must exist on the repository's default branch (`main`) before
-GitHub exposes **Run workflow**. This PR is deliberately left unmerged. After you
-review and merge it yourself:
+The manual workflow is installed on `main`. To test the pending visual redesign
+before merging its PR, select `codex/reference-style-preview` in **Run workflow**.
+Selecting `main` renders the latest merged design.
 
 1. Open this repository → **Actions**.
 2. Select **Render backyard preview** in the left sidebar.
-3. Click **Run workflow**, select `main` (or a later development branch containing
-   the workflow), then click the green **Run workflow** button.
+3. Click **Run workflow**, select `codex/reference-style-preview` for the visual
+   revision (or `main` after it is merged), then click the green **Run workflow** button.
 4. Open the new run and wait for the `render` job to finish.
 5. Under **Artifacts**, confirm `backyard-preview-<run number>` appears. It includes
    `backyard-preview.mp4`, seven PNG review frames, `probe.json`, and dependency
@@ -54,12 +57,13 @@ rendering on GitHub Actions. `npm run licenses` preserves dependency notices.
 
 ## Reusing the studio
 
-`src/story.ts` is the storyboard: ordered semantic shot IDs, durations, captions,
+`src/story.ts` is the storyboard: ordered semantic shot IDs, durations, word captions,
 delivery settings and the seven-beat full-episode editorial plan. Composition
 duration is calculated automatically from the preview shots. `src/motion.ts`
 evaluates character state directly at a frame, independent of playback order.
-`src/Inventor.tsx` owns the consistent cast and joint hierarchy;
-`src/Backyard.tsx` owns the fixed set; `src/Scene.tsx` owns lighting, camera and
+`src/Inventor.tsx` owns the consistent cast and armor; `src/human-rig.ts` owns
+the skin rig; `src/prop-motion.ts` owns continuous releases and ground contact;
+`src/Backyard.tsx` and `src/Terrain.tsx` own the fixed set; `src/Scene.tsx` owns lighting, camera and
 caption composition. Change shot data and implement the corresponding camera and
 motion action to make another story. New actions need implementation; this is
 not a text-to-video model that invents arbitrary choreography.
@@ -75,15 +79,15 @@ recipes or real human-flight construction instructions.
 
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual checks and render status.
 Bundling and motion tests establish software behavior, not visual polish. The
-first GitHub render must still be reviewed for framing, shadow artifacts,
+next GitHub render of this revision must be reviewed for framing, shadow artifacts,
 intersections, readable captions, comedic timing and CPU duration. No claim of
 high-end animated Shorts quality is made before that inspection.
 
 If software rendering hits the time limit, reduce shadow casters/geometry detail,
 share repeated meshes through instancing and bake ambient occlusion into original
 vertex colors. Keep 1080 × 1920 and 30 fps for delivery. For greater character
-polish, author an original skinned GLB in cloud tooling, improve hand contacts,
-add squash/stretch and facial blend shapes, and keep the same set and palette.
+polish, add properly tailored garment shells, refine facial bone poses and hand
+contacts, and keep the same actor, set and palette.
 Those changes can use free tools and original/CC0 assets; a full Blender/GPU
 pipeline has not been demonstrated practical within this runner limit.
 

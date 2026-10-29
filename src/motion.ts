@@ -21,8 +21,6 @@ export function poseAt(frame: number) {
     blink: frame % 113 >= 105 && frame % 113 <= 109,
     headTilt: metal ? wobble * -.2 : Math.sin(frame * .035) * .08 + fail * .2,
     panelSpread: metal ? (1 - assemble) * 2.4 : 0,
-    // Ballistic cardboard debris: ground contact is clamped, never passes below grass.
-    debrisY: Math.max(.07, 1.35 - 2.3 * fail * fail),
     surprise: shot.id === 'collapse' && f > 16 || hover > .25,
   };
 }
