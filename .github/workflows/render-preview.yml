@@ -1,13 +1,82 @@
-name: Render backyard preview
+# Keep the existing workflow filename so the website can dispatch a review branch.
+name: Render full backyard episode
 on:
   workflow_dispatch:
+    inputs:
+      episode:
+        description: Full episode to render
+        type: choice
+        options:
+          - flying-armor
+        default: flying-armor
 permissions:
   contents: read
 concurrency:
-  group: backyard-preview-${{ github.ref }}
+  group: backyard-episode-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      composition: ${{ steps.plan.outputs.composition }}
+      episode: ${{ steps.plan.outputs.episode }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck && npm test && npm run build
+      - id: plan
+        name: Plan the complete episode
+        env:
+          EPISODE_ID: ${{ inputs.episode || 'flying-armor' }}
+        run: node --experimental-strip-types scripts/plan-episode.ts "$EPISODE_ID"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: episode-plan
+          path: |
+            out/manifest.json
+            out/story.srt
+          retention-days: 1
   render:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Install inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+      - name: Render a segment of the full timeline
+        env:
+          COMPOSITION_ID: ${{ needs.plan.outputs.composition }}
+          FIRST_FRAME: ${{ matrix.from }}
+          LAST_FRAME: ${{ matrix.to }}
+          FRAME_COUNT: ${{ matrix.frames }}
+        run: |
+          mkdir -p work/chunk
+          npx --no-install remotion render src/index.ts "$COMPOSITION_ID" work/chunk/chunk.mp4 --frames="$FIRST_FRAME-$LAST_FRAME" --codec=h264 --pixel-format=yuv420p --crf=20 --concurrency=2 --gl=swangle --log=info
+          node --experimental-strip-types scripts/check-chunk.ts work/chunk/chunk.mp4 "$FRAME_COUNT"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: episode-chunk-${{ matrix.id }}
+          path: work/chunk/chunk.mp4
+          retention-days: 1
+  assemble:
+    needs: [plan, render]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -17,34 +86,28 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Install video inspection tools
+      - name: Install video tools
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends ffmpeg
-          ffmpeg -version
-          ffprobe -version
-      - name: Validate storyboard and types
-        run: npm run typecheck && npm test
-      - name: Bundle scene
-        run: npm run build
-      - name: Render only the ten-second proof
-        run: npm run render:preview
-      - name: Extract review frames and verify encoding
-        run: |
-          mkdir -p out/frames
-          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames -show_entries format=duration -of json out/backyard-preview.mp4 > out/probe.json
-          node scripts/verify-render.mjs
-          for frame in 30 100 150 180 210 262 290; do
-            ffmpeg -v error -i out/backyard-preview.mp4 -vf "select=eq(n\,$frame)" -frames:v 1 "out/frames/frame-$frame.png"
-          done
-      - name: Preserve dependency notices
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: episode-plan
+          path: plan
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: episode-chunk-*
+          path: segments
+      - name: Join and verify the full episode
+        run: node --experimental-strip-types scripts/assemble-episode.ts
+      - name: Preserve notices
         if: always()
         run: npm run licenses
-      - name: Upload preview and review frames
-        if: always()
+      - name: Upload the complete video
+        if: success()
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: backyard-preview-${{ github.run_number }}
+          name: full-backyard-episode-${{ github.run_number }}
           path: out/
           retention-days: 3
-          if-no-files-found: warn
+          if-no-files-found: error

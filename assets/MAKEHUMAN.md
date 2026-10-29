@@ -38,7 +38,8 @@ npm run build
 
 The compiler applies the male target, removes helper cages, triangulates the
 body, normalizes the four strongest skin weights, dresses the character with
-original workwear/scalp vertex colors and records joint positions. Its output,
+original workwear/scalp vertex colors and records joint positions. Hand and
+finger weights override clothing-region colors so fingers stay skin-toned. Its output,
 `src/assets/inventor.json`, has 13,380 vertices, 26,756 triangles and 163 bones.
 It is committed, so GitHub rendering needs no upstream asset download, Python
 package, MakeHuman installation or Blender installation.

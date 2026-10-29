@@ -1,55 +1,70 @@
 # Verification record
 
-## Reference-style revision (not yet rendered)
+## Full episode revision
 
-The scene has been rebuilt around the user's three supplied reference screenshots.
-See REFERENCE_STYLE.md and assets/MAKEHUMAN.md for art direction and asset provenance.
+The user approved the overall visual direction of the reference-style proof and
+requested a full causal story, a grounded background, calmer facial treatment,
+and better environment construction. The full timeline is now 48 seconds, 1440
+frames at 1080 × 1920 / 30 FPS, with eight cumulative six-second beats.
 
-Verified in Codex Cloud:
+Completed in Codex Cloud:
 
-- TypeScript checking and production Remotion bundling pass.
-- Nine tests cover storyboard timing, finite frame poses, hover bounds, render-order
-  determinism, outward thin-panel normals, valid skin topology/weights, deformed
-  sole grounding, hand-to-paper release and continuous cardboard descent.
-- The 13,380-vertex CC0 human is bundled locally; no external media request is
-  required by the renderer.
-- Dependency/asset license collection completes.
+- TypeScript checking and production Remotion bundling.
+- Thirteen tests: full timeline, cumulative features, heat/cooling and stability,
+  dependency validation, render-order determinism, thin-panel normals, human
+  topology/weights, deformed sole grounding, hand-to-forehead reach, corrected
+  finger colors, paper release, chunk coverage and encoding validation.
+- Full render plan generated: eight contiguous render jobs, 16 review frames,
+  exact 48-second transcript and encoding expectations.
+- Workflow YAML parsed and manual-only/Ubuntu/job-timeout constraints checked.
+- License collector includes the template, MakeHuman CC0 and original asset notices.
 
-No revised MP4 or revised output frame has been rendered or inspected. Rendering
-is reserved for GitHub Actions. This revision's visual appearance and runtime on
-that runner remain unverified. Tests validate rig behavior and geometry properties;
-they do not certify the requested animation quality.
+**Not verified yet:** a render of the new full episode, its output frames, facial
+appearance, environment finish, heat/cooling storytelling, final concatenation
+in GitHub Actions, or per-segment CPU duration. No full MP4 or new still frame
+has been rendered in Cloud. All rendering remains on GitHub Actions.
 
-The connector has no workflow-dispatch operation, and the cloud CLI's attempt to
-read the workflow API returned Forbidden. Start a new manual run on the review
-branch using the GitHub website; no Mac installation or download is necessary.
+The connector has no dispatch operation and the cloud CLI previously returned
+Forbidden for workflow API access. The full run must be triggered through the
+GitHub website on `codex/full-episode`, before or after owner review/merge.
 
-## Earlier preview evidence (superseded visual design)
+## Latest reference-style proof (prior revision)
 
-[Run 40879220130](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/40879220130)
-rendered and encoded all 300 frames in about 150 seconds on a standard Ubuntu CPU
-runner. The later ffprobe step failed because ffprobe was absent. The MP4 was
-uploaded and retrieved in Codex Cloud. It passed encoding assertions.
+[Run 40890084240](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/40890084240)
+completed successfully. Its logs show rendering from 17:18:56 to encoding
+completion at 17:28:03 Istanbul time (UTC+3): about 548 seconds for 300 frames. The user supplied
+screenshots and identified the floating terrain boundary, bulging/staring eyes,
+weak progression, swollen roof/boards, oversized foliage and poorly formed props.
 
-[Run 40880391908](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/40880391908)
-succeeded, including encoding verification, frame extraction and artifact upload
-after explicit FFmpeg installation. Seven extracted frames (30, 100, 150, 180,
-210, 262 and 290) were inspected. H.264, 1080 × 1920, 30 fps, 300 frames and exactly
-10 seconds were confirmed. The complete MP4 was not watched in real time.
+These findings led to continuous terrain and surrounding houses, a sky material
+excluded from fog (the old sky sphere was fogged to a flat color), rebuilt gables
+and roof planes, physically uniform bevel radii, smaller instanced leaves and
+connected branches, anchored props, reduced eye globes, calmer facial bones,
+corrected finger skin colors, and the full problem→fix→new-problem story.
 
-The user rejected that design's quality. It showed pinched armor surfaces,
-primitive character anatomy, an oversized head, a flat environment treatment and
-abrupt prop transitions. Those old render results do not validate the new design.
+The previous timing makes a single 48-second job impractical within 15 minutes.
+The new design partitions the full global timeline into <=7-second render chunks,
+then verifies and joins them. Every job still has a 15-minute timeout. A failed
+chunk blocks assembly; a successful build alone does not establish render success.
 
-## New-render acceptance checklist
+## Full-output review
 
-- Frame 30: natural-proportioned human, backyard continuity and soil cutaway.
-- Frames 100/150: cardboard and drawing fall from plausible release positions.
-- Frames 180/210: smooth titanium panels, visible skin/workwear, correct joint contact.
-- Frames 262/290: fictional hover, body balance, clean boot contact and landing.
-- Whole clip: stable eyes and facial skin, no exposed garment gaps, no clipping,
-  readable one-word captions, appropriate timing and smooth camera movement.
-- Record runner duration. The 15-minute limit is a ceiling, not a benchmark for
-  the revised geometry, reflections and higher-resolution shadows.
+Inspect both planned frames for every beat, then watch the complete joined clip:
 
-Keep the seven-beat full episode unregistered until this preview is accepted.
+- Landscape continues past the yard with no visible floating platform edge.
+- Shed roof boards meet the ridge/gable, trees have connected branches and small
+  foliage, and bench, planter, watering can and laundry have visible support.
+- Eyes sit naturally in the face, lids do not deform brows, fingers are skin-toned.
+- The power beat visibly causes heat; the cooling beat visibly relieves it.
+- Cardboard, metal, joints, power and cooling remain when later modules arrive.
+- Hover is absent until the hover beat, wobbles before stabilization, and becomes
+  steady before the final flight above the same backyard.
+- Frame transitions at every render-chunk boundary match the continuous timeline.
+- MP4 is H.264/yuv420p, 1080 × 1920, 30 FPS, 1440 frames and 48 seconds.
+
+## Earlier historical evidence
+
+Run 40879220130 rendered the original toy-style proof but failed at missing
+ffprobe. Run 40880391908 passed after explicit FFmpeg installation. Seven frames
+from that earlier design were inspected. The user rejected its art direction;
+those outputs do not validate this full-episode revision.

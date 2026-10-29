@@ -22,5 +22,5 @@ export const Ball = ({color, ...props}: {color: string} & ThreeElements['mesh'])
     <meshStandardMaterial color={color} roughness={.6}/></mesh>;
 
 export const Ring = ({color, radius = .2, ...props}: {color: string; radius?: number} & ThreeElements['mesh']) =>
-  <mesh {...props} castShadow><torusGeometry args={[radius, .035, 8, 24]}/>
+  <mesh {...props} castShadow><torusGeometry args={[radius, Math.min(.018, radius * .14), 8, 24]}/>
     <meshStandardMaterial color={color} roughness={.35} metalness={.3}/></mesh>;
