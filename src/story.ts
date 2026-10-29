@@ -3,10 +3,10 @@ export const preview = {
   id: 'BackyardPreview', fps: 30, width: 1080, height: 1920,
   title: 'How You Built Flying Metal Armor in Your Backyard',
   shots: [
-    {id: 'idea', frames: 72, caption: 'Every great invention starts with…', tag: '01 / THE PLAN'},
-    {id: 'collapse', frames: 84, caption: '…a questionable choice of materials.', tag: '02 / STRUCTURAL OOPS'},
-    {id: 'upgrade', frames: 66, caption: 'Fine. Metal. What could go wrong?', tag: '03 / VERSION 2'},
-    {id: 'hover', frames: 78, caption: 'Gravity would like a word.', tag: '04 / FICTIONAL HOVER'},
+    {id: 'idea', frames: 72, words: ['You', 'built', 'flying', 'armor.']},
+    {id: 'collapse', frames: 84, words: ['Cardboard', 'had', 'other', 'plans.']},
+    {id: 'upgrade', frames: 66, words: ['Metal.', 'Fictional', 'hover', 'modules.']},
+    {id: 'hover', frames: 78, words: ['Gravity', 'requested', 'a', 'refund.']},
   ],
 } as const;
 
@@ -22,6 +22,16 @@ export const episodePlan = [
 ] as const;
 
 export const totalFrames = preview.shots.reduce((sum, shot) => sum + shot.frames, 0);
+
+export const shotStart = (id: typeof preview.shots[number]['id']) => {
+  let start = 0;
+  for (const shot of preview.shots) {
+    if (shot.id === id) return start;
+    start += shot.frames;
+  }
+  throw new Error(`Unknown action: ${id}`);
+};
+export const propReleaseFrame = shotStart('collapse') + 20;
 
 export function shotAt(frame: number) {
   let start = 0;

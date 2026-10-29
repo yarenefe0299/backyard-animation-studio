@@ -2,11 +2,25 @@ import {useLayoutEffect} from 'react';
 import {useThree} from '@react-three/fiber';
 import {ThreeCanvas} from '@remotion/three';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
-import {PCFSoftShadowMap, ACESFilmicToneMapping, Vector3} from 'three';
+import {PCFSoftShadowMap, ACESFilmicToneMapping, Vector3, PMREMGenerator} from 'three';
+import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {Backyard} from './Backyard';
-import {FallenCardboard, Inventor} from './Inventor';
-import {Ball} from './Primitives';
+import {Inventor} from './Inventor';
 import {mix, poseAt, smooth} from './motion';
+
+// Procedural studio reflections: no HDRI download, consistent on every worker.
+function StudioReflections() {
+  const {gl, scene} = useThree();
+  useLayoutEffect(() => {
+    const generator = new PMREMGenerator(gl);
+    const room = new RoomEnvironment();
+    const map = generator.fromScene(room, .04);
+    scene.environment = map.texture;
+    scene.environmentIntensity = .32;
+    return () => {scene.environment = null; map.dispose(); room.dispose(); generator.dispose();};
+  }, [gl, scene]);
+  return null;
+}
 
 function Camera({frame}: {frame: number}) {
   const {camera} = useThree();
@@ -14,17 +28,18 @@ function Camera({frame}: {frame: number}) {
   const t = smooth(shot.local / (shot.frames - 1));
   useLayoutEffect(() => {
     if (shot.id === 'idea') {
-      camera.position.set(mix(7.2, 5.7, t), mix(5.3, 4.3, t), mix(15, 12.5, t));
-      camera.lookAt(new Vector3(-.3, 1.1, -.4));
+      camera.position.set(mix(6.2, 4.6, t), mix(5.2, 4.0, t), mix(14.5, 12, t));
+      camera.lookAt(new Vector3(-.15, 1.0, -.6));
     } else if (shot.id === 'collapse') {
-      camera.position.set(mix(3.4, 2.5, t), mix(2.8, 2.4, t), mix(8, 7.6, t));
-      camera.lookAt(new Vector3(.2, 1.35, .65));
+      // Close enough to read hands, eyes and the cardboard separation.
+      camera.position.set(mix(1.8, 1.15, t), mix(2.4, 2.05, t), mix(5.4, 5.7, t));
+      camera.lookAt(new Vector3(.2, mix(1.65, 1.45, t), .7));
     } else if (shot.id === 'upgrade') {
-      camera.position.set(mix(-3.2, -2.3, t), 2.6, mix(7.8, 7.4, t));
-      camera.lookAt(new Vector3(.25, 1.5, .65));
+      camera.position.set(mix(-1.8, -1.2, t), 2.35, mix(5.6, 5.35, t));
+      camera.lookAt(new Vector3(.3, 1.6, .65));
     } else {
-      camera.position.set(mix(2.9, 4.2, t), 2.9 + lift * .2, mix(9, 10, t));
-      camera.lookAt(new Vector3(.3, 1.55 + lift * .3, .65));
+      camera.position.set(mix(2.25, 2.7, t), 1.95 + lift * .2, mix(7.7, 8.2, t));
+      camera.lookAt(new Vector3(.3, 1.45 + lift * .4, .65));
     }
     camera.updateMatrixWorld();
   }, [camera, shot.id, t, lift]);
@@ -35,43 +50,39 @@ export const BackyardFilm = () => {
   const frame = useCurrentFrame();
   const {width, height} = useVideoConfig();
   const {shot, hover} = poseAt(frame);
-  return <AbsoluteFill style={{background: '#bee4e6'}}>
+  const index = Math.min(shot.words.length - 1, Math.floor(shot.local / shot.frames * shot.words.length));
+  const word = shot.words[index];
+  const phase = (shot.local / shot.frames * shot.words.length) % 1;
+  const captionScale = .94 + smooth(phase / .22) * .06;
+  return <AbsoluteFill style={{background: '#a5c8d9'}}>
     <ThreeCanvas width={width} height={height} shadows={{type: PCFSoftShadowMap}}
-      camera={{fov: 39, near: .1, far: 100}}
-      gl={{antialias: true, alpha: false, toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1.15}}>
-      <color attach="background" args={['#bee4e6']}/>
-      <fog attach="fog" args={['#bee4e6', 24, 60]}/>
+      camera={{fov: 38, near: .1, far: 120}}
+      gl={{antialias: true, alpha: false, toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1}}>
+      <color attach="background" args={['#a5c8d9']}/>
+      <fog attach="fog" args={['#a5c8d9', 20, 65]}/>
+      <StudioReflections/>
       <Camera frame={frame}/>
-      <hemisphereLight args={['#e6f8ff', '#8d966b', 2]}/>
-      <ambientLight intensity={.3}/>
-      <directionalLight position={[-5, 9, 6]} intensity={3.2} color="#fff0d2" castShadow
-        shadow-mapSize={[1024, 1024]} shadow-bias={-.0004} shadow-normalBias={.03}
-        shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9}
-        shadow-camera-bottom={-9} shadow-camera-near={.5} shadow-camera-far={30}
+      <hemisphereLight args={['#d4e9f3', '#727a5d', .85]}/>
+      <directionalLight position={[-4, 8, 5]} intensity={2.7} color="#ffe4c3" castShadow
+        shadow-mapSize={[2048, 2048]} shadow-bias={-.00015} shadow-normalBias={.018}
+        shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7}
+        shadow-camera-bottom={-7} shadow-camera-near={.5} shadow-camera-far={25}
         shadow-radius={4}/>
-      <directionalLight position={[5, 5, -4]} intensity={1.5} color="#a9e7ef"/>
+      <directionalLight position={[4, 4, -3]} intensity={1.25} color="#b4e8fa"/>
+      <directionalLight position={[1, 3, 8]} intensity={.4} color="#e0eaf0"/>
       <Backyard frame={frame}/>
       <Inventor frame={frame}/>
-      <FallenCardboard frame={frame}/>
-      {hover > 0 && <pointLight position={[.3, .3, .65]} intensity={hover * 2} color="#65fafa" distance={3}/>}
-      {/* Clouds are geometry; their slow drift is deterministic too. */}
-      {[-1, 1].map(s => <group key={s} position={[s * 6 + Math.sin(frame * .003) * .25, 7, -11]}>
-        {[-1, 0, 1].map(i => <Ball key={i} color="#edf4e9" position={[i * .75, i === 0 ? .2 : 0, 0]}
-          scale={[1.1, .45, .5]}/>)}
-      </group>)}
+      {hover > 0 && <pointLight position={[.3, .3, .65]} intensity={hover * 1.1} color="#65fafa" distance={2}/>}
     </ThreeCanvas>
-    <AbsoluteFill style={{padding: '108px 70px 145px', justifyContent: 'space-between',
-      pointerEvents: 'none', fontFamily: 'Arial, sans-serif', color: '#263e48'}}>
-      <div>
-        <div style={{fontSize: 24, letterSpacing: 5, fontWeight: 800}}>BACKYARD / LAB NOTES</div>
-        <div style={{fontSize: 58, lineHeight: 1.05, fontWeight: 900, marginTop: 20}}>A VERY SMALL<br/>FLIGHT PLAN.</div>
-        <div style={{marginTop: 22, fontSize: 24, fontWeight: 700}}>{shot.tag}</div>
-      </div>
-      <div>
-        <div style={{background: '#fff7e9ed', padding: '26px 32px', borderRadius: 24,
-          fontWeight: 800, fontSize: 40, lineHeight: 1.15, boxShadow: '0 6px 0 #577d7925'}}>{shot.caption}</div>
-        <div style={{fontSize: 21, letterSpacing: 1.5, marginTop: 22, textAlign: 'center'}}>FICTIONAL TECHNOLOGY • PLEASE DO NOT TRY TO FLY</div>
-      </div>
+    <AbsoluteFill style={{pointerEvents: 'none',
+      background: 'radial-gradient(ellipse at 50% 43%, transparent 40%, rgba(15,29,40,.17) 100%)'}}/>
+    <AbsoluteFill style={{pointerEvents: 'none', fontFamily: 'Arial, sans-serif', color: 'white'}}>
+      <div style={{position: 'absolute', top: '62%', width: '100%', textAlign: 'center',
+        fontWeight: 900, fontSize: 76, lineHeight: 1, letterSpacing: -1.5,
+        WebkitTextStroke: '7px #10171c', paintOrder: 'stroke fill',
+        textShadow: '0 5px 8px #10171c99', transform: `scale(${captionScale})`}}>{word}</div>
+      <div style={{position: 'absolute', bottom: 145, width: '100%', textAlign: 'center',
+        fontSize: 18, letterSpacing: 2, opacity: .85, textShadow: '0 2px 5px #152832'}}>FICTIONAL TECHNOLOGY</div>
     </AbsoluteFill>
   </AbsoluteFill>;
 };

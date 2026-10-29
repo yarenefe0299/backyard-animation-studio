@@ -9,11 +9,10 @@ test('storyboard composes exactly ten seconds with no shot gaps', () => {
   assert.deepEqual([0, 71, 72, 155, 156, 221, 222, 299].map(f => shotAt(f).id),
     ['idea', 'idea', 'collapse', 'collapse', 'upgrade', 'upgrade', 'hover', 'hover']);
 });
-test('all rendered poses are finite and grounded debris never penetrates the lawn', () => {
+test('all rendered poses are finite and hover lift stays bounded', () => {
   for (let f = 0; f < totalFrames; f++) {
     const p = poseAt(f);
     for (const v of Object.values(p)) if (typeof v === 'number') assert.ok(Number.isFinite(v));
-    assert.ok(p.debrisY >= .07);
     assert.ok(p.lift >= 0 && p.lift <= .85);
   }
 });

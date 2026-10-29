@@ -1,28 +1,27 @@
 import {Ball, Part, Ring} from './Primitives';
+import {Terrain, Leaves} from './Terrain';
 
-const grass = '#83af72';
 export const Backyard = ({frame}: {frame: number}) => <group>
-  <Part size={[13, .5, 13]} position={[0, -.3, 0]} radius={.22} color={grass}/>
-  <Part size={[13, .3, 13]} position={[0, -.64, 0]} radius={.14} color="#ad7854"/>
+  <Terrain/>
   {/* Picket fence, posts, rails and a back gate share one fixed world. */}
   {[-1, 1].map(side => <group key={side}>
     {Array.from({length: 25}, (_, i) => <Part key={i} size={[.32, 1.7 + (i % 3) * .04, .12]}
       position={[side === -1 ? -6 : i * .48 - 5.8, .82, side === -1 ? i * .48 - 5.8 : -5.8]}
-      rotation={[0, side === -1 ? Math.PI / 2 : 0, 0]} color={i % 2 ? '#f4dbb5' : '#fbe7c7'} radius={.08}/>)}
+      rotation={[0, side === -1 ? Math.PI / 2 : 0, 0]} color={i % 2 ? '#afab97' : '#bcb6a0'} radius={.08}/>)}
   </group>)}
-  {[.4, 1.15].map(y => <Part key={y} size={[12, .12, .16]} position={[0, y, -5.65]} color="#cda77b"/>)}
+  {[.4, 1.15].map(y => <Part key={y} size={[12, .12, .16]} position={[0, y, -5.65]} color="#918976"/>)}
   {/* Tool shed with roof, door, trim, window, hinges and flower box. */}
   <group position={[-3.4, 0, -3.65]}>
-    <Part size={[3.1, 2.6, 2.5]} position={[0, 1.3, 0]} color="#e9ac77" radius={.1}/>
+    <Part size={[3.1, 2.6, 2.5]} position={[0, 1.3, 0]} color="#b2aa95" radius={.1}/>
     {[-1, 1].map(s => <Part key={s} size={[1.94, .18, 2.9]} position={[s * .78, 2.88, 0]}
-      rotation={[0, 0, -s * .4]} color="#557780"/>)}
-    <Part size={[1.05, 2.08, .13]} position={[-.55, 1.08, 1.29]} color="#5c9394"/>
-    {[-1, 1].map(s => <Part key={s} size={[.1, 2.22, .17]} position={[-.55 + s * .58, 1.1, 1.36]} color="#fff1ce"/>)}
-    <Part size={[1.25, .13, .17]} position={[-.55, 2.15, 1.36]} color="#fff1ce"/>
+      rotation={[0, 0, -s * .4]} color="#566269"/>)}
+    <Part size={[1.05, 2.08, .13]} position={[-.55, 1.08, 1.29]} color="#737c77"/>
+    {[-1, 1].map(s => <Part key={s} size={[.1, 2.22, .17]} position={[-.55 + s * .58, 1.1, 1.36]} color="#c9c5b4"/>)}
+    <Part size={[1.25, .13, .17]} position={[-.55, 2.15, 1.36]} color="#c9c5b4"/>
     <Ball color="#edc16c" position={[-.22, 1, 1.4]} scale={.07}/>
     <Part size={[.85, .85, .1]} position={[.85, 1.7, 1.3]} color="#425f69"/>
     <Part size={[.67, .67, .11]} position={[.85, 1.7, 1.37]} color="#bde6de"/>
-    {[0, 1].map(i => <Part key={i} size={i ? [.78, .06, .08] : [.06, .78, .08]} position={[.85, 1.7, 1.45]} color="#fff1ce"/>)}
+    {[0, 1].map(i => <Part key={i} size={i ? [.78, .06, .08] : [.06, .78, .08]} position={[.85, 1.7, 1.45]} color="#c9c5b4"/>)}
     <Part size={[1, .28, .35]} position={[.85, 1.1, 1.45]} color="#ba7261"/>
     {[-.25, 0, .25].map((x, i) => <Ball key={x} color={['#ffe189', '#ed9a9e', '#f7c25e'][i]}
       position={[.85 + x, 1.35, 1.48]} scale={.15}/>)}
@@ -43,10 +42,10 @@ export const Backyard = ({frame}: {frame: number}) => <group>
   {/* Tree, planter, stepping stones and motion in foliage. */}
   <group position={[3.65, 0, -3.4]}>
     <Part size={[.45, 2.5, .48]} position={[0, 1.2, 0]} rotation={[0, 0, -.1]} color="#98704e"/>
-    <group rotation={[0, 0, Math.sin(frame * .027) * .025]} position={[0, 2.3, 0]}>
-      {[[0, .6, 0], [-.8, .15, .1], [.8, .2, 0], [.1, 1.2, -.2]].map((p, i) =>
-        <Ball key={i} color={['#5c9971', '#6ca675', '#80b47b', '#73a876'][i]}
-          position={p as [number, number, number]} scale={[1.2, .95, 1.05]}/>)}
+    <group position={[0, 2, 0]}>
+      {[-1, 1].map(side => <Part key={side} size={[.16, 1.1, .16]}
+        position={[side * .35, .3, 0]} rotation={[0, 0, -side * .65]} color="#73614c"/>)}
+      <Leaves frame={frame}/>
     </group>
   </group>
   <group position={[2.8, 0, -.8]}>

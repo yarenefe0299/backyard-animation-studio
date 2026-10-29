@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import type {ThreeElements} from '@react-three/fiber';
-import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import {roundedGeometry} from './rounded-geometry';
 
 type PartProps = {
   size: [number, number, number]; color: string; radius?: number;
@@ -9,7 +9,7 @@ type PartProps = {
 
 export const Part = ({size, color, radius = .06, metalness = 0,
   roughness = .65, glow = 0, ...props}: PartProps) => {
-  const geometry = useMemo(() => new RoundedBoxGeometry(...size, 2, radius),
+  const geometry = useMemo(() => roundedGeometry(size, radius),
     [size[0], size[1], size[2], radius]);
   return <mesh {...props} geometry={geometry} castShadow receiveShadow>
     <meshStandardMaterial color={color} roughness={roughness} metalness={metalness}
