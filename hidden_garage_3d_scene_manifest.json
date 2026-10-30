@@ -1,0 +1,347 @@
+{
+  "title": "How to Make Your Car Disappear Underground",
+  "format": {
+    "duration_s": 51.06,
+    "fps": 30,
+    "source_reference_resolution": "512x910",
+    "master_render_resolution": "1080x1920",
+    "aspect_ratio": "9:16",
+    "output_codec": "H.264",
+    "color": "Rec.709"
+  },
+  "mission": "Make an ORIGINAL animation in the same broad visual language as the uploaded toilet-engineering reference, matching lighting, camera grammar, model fidelity, subtitles, cadence and narrative structure rather than literally reusing its footage or characters.",
+  "reference_file": "snapgram.io_5atgg39h6fde.mp4",
+  "reference_traits": {
+    "render_look": "Clean lightly stylized 3D, lightly beveled edges, credible diffuse contact shadows, modest realism, avoid flat sprites and unlit primitives.",
+    "setting": "Warm cream plaster wall, oak trim and planks, earth-brown cutaway with visible pebbles, desaturated gray concrete, softly lit green lawn.",
+    "lighting": "soft warm daylight, large diffuse key area light, ambient fill, gentle AO; no cinematic neon, no harsh high-contrast dramatic lighting.",
+    "palette": "Pale oak, cream/off-white, gray block wall, brown soil, translucent blue mechanical overlays and water, restrained red warnings.",
+    "camera": "3/4 orthographic-ish cutaway or 35mm medium shots, no handheld jitter, smooth easing, same persistent geometry frame to frame.",
+    "subtitles": "Bold white sans-serif with black outline, two-three-word rhythm, centered in lower-middle safe title area.",
+    "narrator": "Conversational direct second-person; lively, lightly humorous, 170-185 wpm overall; original voice, no attempt to clone actual voice.",
+    "vfx": "Transparent blue construction guides, fluid flow visualization, particles for rain and dust, small visual celebration on final shot.",
+    "editing": "Frequent visual reveal/problem/solution cadence; every 2-5 sec a meaningful visible object change."
+  },
+  "design_consistency": {
+    "single_scene_master": true,
+    "one_car_mesh": true,
+    "one_house_model": true,
+    "one_driveway_model": true,
+    "one_underground_chamber_coordinates": true,
+    "single_material_library": true,
+    "geometry_components": [
+      "driveway",
+      "house",
+      "car",
+      "soil",
+      "pit",
+      "retaining_walls",
+      "lift",
+      "hydraulic_system",
+      "drainage_system",
+      "sensor_system"
+    ]
+  },
+  "quality_gate": [
+    "Render S02 and S06 as still frame comparisons with source before any other rendering.",
+    "Do not substitute unrelated AI-generated shots for the 3D master scene.",
+    "At 100 percent size there must be modeled edges, bevels, joints, texture grain, contact shadows and sensible water movement.",
+    "All mechanics must visibly connect and obey hierarchy.",
+    "Every new shot must preserve the car identity and chamber location.",
+    "Render in vertical 1080x1920; no captions obscuring operating parts.",
+    "Listen to narration first, then retime visual keyframes to stressed verbs.",
+    "Treat it as fictional visualization, not instructions for a real underground vehicle lift."
+  ],
+  "scene_list": [
+    {
+      "id": "S01",
+      "start": 0,
+      "end": 2.6,
+      "name": "The vanishing car hook",
+      "spoken": "What if your car could vanish underground?",
+      "visual": "A small silver hatchback sits on a simple paved driveway in front of a cream-plaster house. Ground slab lowers 30 cm with car aboard; camera holds as grass and paving obscure the edges. Preview final payoff immediately.",
+      "camera": "Medium-wide, 3/4 perspective, camera at 1.35 m, 35 mm equivalent, slow 6 cm dolly forward",
+      "animation": "Car settles slightly on platform. Ground/driveway slabs vertically lower with mechanical easing. No vehicle movement on wheels.",
+      "assets": [
+        "modest house",
+        "oak-trimmed window",
+        "driveway pavers",
+        "silver compact car",
+        "hydraulic elevator platform",
+        "lawn",
+        "trees"
+      ],
+      "fx": [
+        "brief platform dust",
+        "gentle ambient sunlight"
+      ],
+      "duration_s": 2.6,
+      "target_words": 7,
+      "voice_start": 0.08,
+      "voice_end": 2.35,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S02",
+      "start": 2.6,
+      "end": 5.85,
+      "name": "Cutaway excavation",
+      "spoken": "You start by digging a hole beneath your driveway.",
+      "visual": "Cutaway ground beneath driveway. The underground volume is initially glowing translucent blue; rectangular soil volume disappears in a clean construction reveal.",
+      "camera": "Locked 3/4 cutaway at eye line just above grade, orthographic scale preserving same house geometry",
+      "animation": "Ghosted blue construction box extrudes downward; soil visually slides or dissolves away in chunks.",
+      "assets": [
+        "soil cross-section",
+        "aggregate rocks",
+        "translucent blue excavation guide"
+      ],
+      "fx": [
+        "light dust particles"
+      ],
+      "duration_s": 3.25,
+      "target_words": 9,
+      "voice_start": 2.68,
+      "voice_end": 5.6,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S03",
+      "start": 5.85,
+      "end": 11.2,
+      "name": "First design fails",
+      "spoken": "But the dirt collapses, and your car nearly falls in. You need stronger walls.",
+      "visual": "Soil visibly cracks and a small section crumbles into excavation. Car jolts on the top slab before stopping; a translucent red warning silhouette flashes.",
+      "camera": "Tight cutaway, moderate pan 12 degrees to show unstable right-hand wall",
+      "animation": "A few clods crumble; platform jolts by 4 cm, then pauses (never fully falls).",
+      "assets": [
+        "fractured soil blocks",
+        "car",
+        "floor platform"
+      ],
+      "fx": [
+        "dust puff",
+        "brief red danger highlight"
+      ],
+      "duration_s": 5.35,
+      "target_words": 14,
+      "voice_start": 5.93,
+      "voice_end": 10.95,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S04",
+      "start": 11.2,
+      "end": 16.55,
+      "name": "Reinforced chamber",
+      "spoken": "So you add reinforced concrete walls, steel beams, and a solid platform above.",
+      "visual": "Gray concrete walls and footing pour into place around the pit; reinforcing steel appears first, then concrete opacity rises. Four short beams form supports for the platform.",
+      "camera": "Same 3/4 ground cutaway; subtle smooth move downward to emphasize steel and geometry",
+      "animation": "Steel rebar grows into place, gray concrete panels appear in sequence, top platform slides into place.",
+      "assets": [
+        "reinforced walls",
+        "rebar",
+        "steel I-beams",
+        "platform guides",
+        "floor slab"
+      ],
+      "fx": [
+        "blue build ghosting during assembly"
+      ],
+      "duration_s": 5.35,
+      "target_words": 13,
+      "voice_start": 11.28,
+      "voice_end": 16.3,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S05",
+      "start": 16.55,
+      "end": 19.85,
+      "name": "Lifting problem",
+      "spoken": "But how do you lift a whole car?",
+      "visual": "A two-dimensional yellow force arrow appears beneath suspended platform while car is above, showing the missing mechanism.",
+      "camera": "Punch-in to bottom of platform",
+      "animation": "Weight/compression indication; nothing lifts yet.",
+      "assets": [
+        "yellow force arrows",
+        "platform cross-section"
+      ],
+      "fx": [
+        "brief pause before reveal"
+      ],
+      "duration_s": 3.3,
+      "target_words": 8,
+      "voice_start": 16.63,
+      "voice_end": 19.6,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S06",
+      "start": 19.85,
+      "end": 26.75,
+      "name": "Hydraulics explained",
+      "spoken": "Install hydraulic cylinders. A pump pushes oil through the pipes, lifting the platform and the car together.",
+      "visual": "Two steel hydraulic pistons appear and connect to cylinders. Transparent blue oil paths show fluid flow. Platform smoothly lifts from bottom to surface, silver car remaining stable.",
+      "camera": "Two beats: 3/4 close-up of cylinders 19.85–22.85, wide cutaway to show full lift 22.85–26.75",
+      "animation": "Rod extends along Y; connected platform rises without wobble; blue fluid flows within translucent pipeline.",
+      "assets": [
+        "double-acting hydraulic cylinders",
+        "piston rods",
+        "pump",
+        "reservoir",
+        "steel pipes",
+        "sliders"
+      ],
+      "fx": [
+        "blue particle flow in pipeline"
+      ],
+      "duration_s": 6.9,
+      "target_words": 17,
+      "voice_start": 19.93,
+      "voice_end": 26.5,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S07",
+      "start": 26.75,
+      "end": 31.78,
+      "name": "Rainwater failure",
+      "spoken": "Perfect. Until the first rainstorm turns your hidden garage into a swimming pool.",
+      "visual": "Warm daylight changes to stormy gray; rain hits open driveway crack; water leaks down the underground wall and gathers around lower car tires.",
+      "camera": "Start exterior, transition 1.5s to cross-section of underground cavity",
+      "animation": "Rain lines fall vertically; stylized translucent blue fill rises from floor and ripples.",
+      "assets": [
+        "rain system",
+        "water surface",
+        "wall crack"
+      ],
+      "fx": [
+        "rain",
+        "water ripples",
+        "splash particles"
+      ],
+      "duration_s": 5.03,
+      "target_words": 13,
+      "voice_start": 26.83,
+      "voice_end": 31.53,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S08",
+      "start": 31.78,
+      "end": 35.87,
+      "name": "Drainage and pump",
+      "spoken": "Add a floor drain, a sump pump, and a one-way valve.",
+      "visual": "A drain appears under the car; water channels into a small sump; pump moves glowing blue water through a white pipe; flap of a check valve closes after flow.",
+      "camera": "Close-up of drainage at floor and pipe inside soil, matching toilet reference cutaway style",
+      "animation": "Water flows into sump, through white pipe; blue valve element moves as flow changes.",
+      "assets": [
+        "grated floor drain",
+        "sump pump",
+        "one-way valve",
+        "white PVC drainage pipe"
+      ],
+      "fx": [
+        "blue water trail"
+      ],
+      "duration_s": 4.09,
+      "target_words": 11,
+      "voice_start": 31.86,
+      "voice_end": 35.62,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S09",
+      "start": 35.87,
+      "end": 39.0,
+      "name": "Dangerous pinch point",
+      "spoken": "Except now someone could get trapped by the moving platform.",
+      "visual": "Simple wooden crate near platform edge is highlighted in red as platform moves. Avoid human injury depiction.",
+      "camera": "Medium close-up on platform guide rail",
+      "animation": "Platform begins lowering, then freezes before contacting crate.",
+      "assets": [
+        "wooden crate",
+        "platform guard zone"
+      ],
+      "fx": [
+        "red warning outline"
+      ],
+      "duration_s": 3.13,
+      "target_words": 10,
+      "voice_start": 35.949999999999996,
+      "voice_end": 38.75,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S10",
+      "start": 39.0,
+      "end": 43.42,
+      "name": "Add safety sensors",
+      "spoken": "Sensors can stop the lift whenever something enters its path.",
+      "visual": "Two small black sensors mounted either side of platform send thin glowing amber beams; wooden crate interrupts beam; platform halts.",
+      "camera": "Close-up of sensor position and barrier beam, then pull back to see stopped platform",
+      "animation": "Amber beam appears, crate crosses it, red stop indicator pulses; platform halts.",
+      "assets": [
+        "photoelectric sensors",
+        "safety beam",
+        "indicator lamp",
+        "wooden crate"
+      ],
+      "fx": [
+        "thin translucent amber beam"
+      ],
+      "duration_s": 4.42,
+      "target_words": 10,
+      "voice_start": 39.08,
+      "voice_end": 43.17,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S11",
+      "start": 43.42,
+      "end": 47.8,
+      "name": "Hide the mechanism",
+      "spoken": "Finally, cover the lift with paving that perfectly matches your driveway.",
+      "visual": "Small surface paver tiles slide together on lift platform. Hydraulic cylinders retract. Slab becomes nearly invisible among driveway tiles.",
+      "camera": "Smooth dolly from underground cutaway to exterior wide composition",
+      "animation": "Paver tiles settle, slab lowers 0.5 m, glides up flush with neighboring driveway; seam becomes hidden by alignment.",
+      "assets": [
+        "matching driveway pavers",
+        "platform top cover",
+        "edge gasket"
+      ],
+      "fx": [
+        "minor dust settling"
+      ],
+      "duration_s": 4.38,
+      "target_words": 11,
+      "voice_start": 43.5,
+      "voice_end": 47.55,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    },
+    {
+      "id": "S12",
+      "start": 47.8,
+      "end": 51.06,
+      "name": "Secret garage final payoff",
+      "spoken": "One button. And your entire garage disappears.",
+      "visual": "Clear wide 3/4 cutaway of the completed silver car parked in chamber beneath spotless driveway. Lift rises and lowers once in a satisfying final demonstration; sparkle/confetti at reveal.",
+      "camera": "Fixed master wide cutaway, same model coordinates as S04",
+      "animation": "One 70 cm lift cycle with eased keyframes; overlay x-ray reveal of chamber through ground.",
+      "assets": [
+        "full scene assembly",
+        "handheld button prop"
+      ],
+      "fx": [
+        "tiny multicolored confetti",
+        "short shine glint"
+      ],
+      "duration_s": 3.26,
+      "target_words": 7,
+      "voice_start": 47.879999999999995,
+      "voice_end": 50.81,
+      "subtitle_style": "Reference: bold white center-bottom, thick black outline, max 2 lines, text changes every 2-4 words; important mechanism remains visible."
+    }
+  ],
+  "production_status": "Ready for modeling/animation; no new rendered video or 3D assets included."
+}

@@ -1,0 +1,58 @@
+Episode 01 — How to Make Your Car Disappear Underground
+Production target: 51.06 seconds, 30 fps, 9:16 vertical (1080×1920 final).
+Status: This is an original animation production blueprint, not a rendered film.
+Why this topic
+A car apparently disappearing into an ordinary driveway is an immediate visual hook. Each engineering fix creates a new problem, preserving the structural storytelling rhythm of the toilet mechanism reference without copying its actual story or art assets.
+Full original English narration
+What if your car could vanish underground? You start by digging a hole beneath your driveway. But the dirt collapses, and your car nearly falls in. You need stronger walls. So you add reinforced concrete walls, steel beams, and a solid platform above. But how do you lift a whole car? Install hydraulic cylinders. A pump pushes oil through the pipes, lifting the platform and the car together. Perfect. Until the first rainstorm turns your hidden garage into a swimming pool. Add a floor drain, a sump pump, and a one-way valve. Except now someone could get trapped by the moving platform. Sensors can stop the lift whenever something enters its path. Finally, cover the lift with paving that perfectly matches your driveway. One button. And your entire garage disappears.
+Reference visual DNA
+	●	Lightly stylized but fully dimensional 3D with soft realistic contact shadows, warm cream architecture, wood details and earth/gray cross-sections.
+	●	Consistent single scene, cutaways and ghosted blue construction overlays, not a slideshow of unrelated AI shots.
+	●	Smooth camera and geometry animations, precise water/fluids paths, modest rain and dust particles.
+	●	Short second-person narration with white/black-outline subtitles every two to four words.
+	●	Same broad editing rhythm and target time as the reference: 51.06 seconds with 12 sections.
+Scene-by-scene shot directions
+S01 — The vanishing car hook (0.00–2.60s)
+Narration: What if your car could vanish underground? What to see: A small silver hatchback sits on a simple paved driveway in front of a cream-plaster house. Ground slab lowers 30 cm with car aboard; camera holds as grass and paving obscure the edges. Preview final payoff immediately. Camera: Medium-wide, 3/4 perspective, camera at 1.35 m, 35 mm equivalent, slow 6 cm dolly forward Animation: Car settles slightly on platform. Ground/driveway slabs vertically lower with mechanical easing. No vehicle movement on wheels. 3D assets: modest house, oak-trimmed window, driveway pavers, silver compact car, hydraulic elevator platform, lawn, trees. VFX: brief platform dust, gentle ambient sunlight.
+S02 — Cutaway excavation (2.60–5.85s)
+Narration: You start by digging a hole beneath your driveway. What to see: Cutaway ground beneath driveway. The underground volume is initially glowing translucent blue; rectangular soil volume disappears in a clean construction reveal. Camera: Locked 3/4 cutaway at eye line just above grade, orthographic scale preserving same house geometry Animation: Ghosted blue construction box extrudes downward; soil visually slides or dissolves away in chunks. 3D assets: soil cross-section, aggregate rocks, translucent blue excavation guide. VFX: light dust particles.
+S03 — First design fails (5.85–11.20s)
+Narration: But the dirt collapses, and your car nearly falls in. You need stronger walls. What to see: Soil visibly cracks and a small section crumbles into excavation. Car jolts on the top slab before stopping; a translucent red warning silhouette flashes. Camera: Tight cutaway, moderate pan 12 degrees to show unstable right-hand wall Animation: A few clods crumble; platform jolts by 4 cm, then pauses (never fully falls). 3D assets: fractured soil blocks, car, floor platform. VFX: dust puff, brief red danger highlight.
+S04 — Reinforced chamber (11.20–16.55s)
+Narration: So you add reinforced concrete walls, steel beams, and a solid platform above. What to see: Gray concrete walls and footing pour into place around the pit; reinforcing steel appears first, then concrete opacity rises. Four short beams form supports for the platform. Camera: Same 3/4 ground cutaway; subtle smooth move downward to emphasize steel and geometry Animation: Steel rebar grows into place, gray concrete panels appear in sequence, top platform slides into place. 3D assets: reinforced walls, rebar, steel I-beams, platform guides, floor slab. VFX: blue build ghosting during assembly.
+S05 — Lifting problem (16.55–19.85s)
+Narration: But how do you lift a whole car? What to see: A two-dimensional yellow force arrow appears beneath suspended platform while car is above, showing the missing mechanism. Camera: Punch-in to bottom of platform Animation: Weight/compression indication; nothing lifts yet. 3D assets: yellow force arrows, platform cross-section. VFX: brief pause before reveal.
+S06 — Hydraulics explained (19.85–26.75s)
+Narration: Install hydraulic cylinders. A pump pushes oil through the pipes, lifting the platform and the car together. What to see: Two steel hydraulic pistons appear and connect to cylinders. Transparent blue oil paths show fluid flow. Platform smoothly lifts from bottom to surface, silver car remaining stable. Camera: Two beats: 3/4 close-up of cylinders 19.85–22.85, wide cutaway to show full lift 22.85–26.75 Animation: Rod extends along Y; connected platform rises without wobble; blue fluid flows within translucent pipeline. 3D assets: double-acting hydraulic cylinders, piston rods, pump, reservoir, steel pipes, sliders. VFX: blue particle flow in pipeline.
+S07 — Rainwater failure (26.75–31.78s)
+Narration: Perfect. Until the first rainstorm turns your hidden garage into a swimming pool. What to see: Warm daylight changes to stormy gray; rain hits open driveway crack; water leaks down the underground wall and gathers around lower car tires. Camera: Start exterior, transition 1.5s to cross-section of underground cavity Animation: Rain lines fall vertically; stylized translucent blue fill rises from floor and ripples. 3D assets: rain system, water surface, wall crack. VFX: rain, water ripples, splash particles.
+S08 — Drainage and pump (31.78–35.87s)
+Narration: Add a floor drain, a sump pump, and a one-way valve. What to see: A drain appears under the car; water channels into a small sump; pump moves glowing blue water through a white pipe; flap of a check valve closes after flow. Camera: Close-up of drainage at floor and pipe inside soil, matching toilet reference cutaway style Animation: Water flows into sump, through white pipe; blue valve element moves as flow changes. 3D assets: grated floor drain, sump pump, one-way valve, white PVC drainage pipe. VFX: blue water trail.
+S09 — Dangerous pinch point (35.87–39.00s)
+Narration: Except now someone could get trapped by the moving platform. What to see: Simple wooden crate near platform edge is highlighted in red as platform moves. Avoid human injury depiction. Camera: Medium close-up on platform guide rail Animation: Platform begins lowering, then freezes before contacting crate. 3D assets: wooden crate, platform guard zone. VFX: red warning outline.
+S10 — Add safety sensors (39.00–43.42s)
+Narration: Sensors can stop the lift whenever something enters its path. What to see: Two small black sensors mounted either side of platform send thin glowing amber beams; wooden crate interrupts beam; platform halts. Camera: Close-up of sensor position and barrier beam, then pull back to see stopped platform Animation: Amber beam appears, crate crosses it, red stop indicator pulses; platform halts. 3D assets: photoelectric sensors, safety beam, indicator lamp, wooden crate. VFX: thin translucent amber beam.
+S11 — Hide the mechanism (43.42–47.80s)
+Narration: Finally, cover the lift with paving that perfectly matches your driveway. What to see: Small surface paver tiles slide together on lift platform. Hydraulic cylinders retract. Slab becomes nearly invisible among driveway tiles. Camera: Smooth dolly from underground cutaway to exterior wide composition Animation: Paver tiles settle, slab lowers 0.5 m, glides up flush with neighboring driveway; seam becomes hidden by alignment. 3D assets: matching driveway pavers, platform top cover, edge gasket. VFX: minor dust settling.
+S12 — Secret garage final payoff (47.80–51.06s)
+Narration: One button. And your entire garage disappears. What to see: Clear wide 3/4 cutaway of the completed silver car parked in chamber beneath spotless driveway. Lift rises and lowers once in a satisfying final demonstration; sparkle/confetti at reveal. Camera: Fixed master wide cutaway, same model coordinates as S04 Animation: One 70 cm lift cycle with eased keyframes; overlay x-ray reveal of chamber through ground. 3D assets: full scene assembly, handheld button prop. VFX: tiny multicolored confetti, short shine glint.
+Non-negotiable rendering & quality requirements
+	1.	Build in Blender using programmatic animation so the car, room, floor, pump and rain all persist as one coherent 3D scene.
+	2.	Use consistent materials (wood, plaster, concrete, soil, steel) with subtle roughness and bevels. Match the reference still frame before proceeding.
+	3.	All 12 sections must have actual moving and connected geometry, not static images pushed around in an editor.
+	4.	Keep an orthographic-ish 3/4 camera, light and neutral environment for explanatory readability.
+	5.	Add high-contrast subtitle overlays only in postproduction (not as primitive scene geometry).
+	6.	Deliver a single 1080×1920 MP4 with audio; render sample stills of S02, S06, and S12 as review gates.
+	7.	Reuse the same script/render pipeline for future episodes; no manual installing required on user device when rendered using a remote workflow.
+	8.	Do not present this as a safe real-world construction guide. Engineering of underground lifts requires qualified professionals and permits.
+Required production assets
+	●	Blender master scene: house, driveway, lawn, soil cross-section and cutaway; one silver hatchback.
+	●	Mechanical parts: pit slab, steel reinforcing bars, concrete walls, I-beams, platform rails, two cylinders, pistons, reservoir and hydraulic pipe loop.
+	●	Drainage parts: floor grating, sump, pump, drainage pipe and one-way check valve.
+	●	Sensors: two proximity/photoelectric devices, beam, indicator lamp; one crate for a harmless warning demonstration.
+	●	FX: rain, soil fragments, construction dust, water volume/ripples, blue flow arrows, particles, glints/confetti.
+	●	Sound: original voiceover, soft water/rain/mechanical lift sounds, very light backing music, precisely timed subtitle file.
+Publish-ready title and first caption
+Title: How to Hide an Entire Car Under Your Driveway 🚗 Caption: You think the driveway is empty… until you press the button. #3danimation #engineering #shorts #hiddenGarage
+Status
+The plan and machine-readable JSON are complete. The animation itself has not been rendered; visual fidelity requires real 3D modeling, look-development and preview comparisons, not a single text-to-video prompt.
