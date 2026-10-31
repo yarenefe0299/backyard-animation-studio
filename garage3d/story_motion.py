@@ -125,7 +125,7 @@ def pose_garage(shot,t,seconds,state):
             for i,ob in enumerate(p['excavation_fill']):
                 amount=ease((t-i*.12)/.55);ob.scale.z=max(.001,1-amount);ob.location.z=-2*amount
         elif a=='collapse':
-            visible.update(walls=False,hardware=False,platform=False,car=False,drainage=False,clods=True,guide=True,warning=True)
+            visible.update(walls=False,hardware=False,platform=False,car=False,drainage=False,clods=True,guide=True,warning=False)
         elif a=='reinforce':
             visible.update(hardware=False,platform=False,car=False,drainage=False,rebar=t<.65,guide=True)
             wall_scale=max(.001,ease((t-.18)/.7))
@@ -140,7 +140,7 @@ def pose_garage(shot,t,seconds,state):
         elif a in ('pinch','sensors'):
             stop=.24 if a=='sensors' else .58
             z=-.40+.27*ease(min(t/stop,1))
-            visible.update(crate_parts=True,sensors=a=='sensors',beam=a=='sensors',warning=t>=stop)
+            visible.update(crate_parts=True,sensors=a=='sensors',beam=a=='sensors',warning=a=='sensors' and t>=stop)
         elif a=='conceal':
             z=-2.1*ease(t/.6);cover=ease((t-.62)/.32);reveal=1-ease((t-.70)/.29)
         elif a=='payoff':
@@ -162,7 +162,7 @@ def pose_garage(shot,t,seconds,state):
     p['water'].scale.z=water
     p['crate'].location.x=1.90-.6*ease(t/.6)
     for i,ob in enumerate(p['clods']):
-        ob.location.z=-.20-3.30*ease((t-(i%6)*.05)/.55)
+        ob.location.z=-.20-3.65*ease((t-(i%6)*.05)/.55)
         ob.rotation_euler=(u*(i%3+1),u*3,u*2)
     for ob in p['rain']:
         ob.location.z=5.8-((seconds*5+ob['phase']*5.8)%5.8)
@@ -192,6 +192,7 @@ def bake(story,scope,scene,camera,mech,env=None,car=None,props=None,mats=None):
             t=(frame-shot['start_frame'])/max(1,shot['frames']-1);seconds=(frame-1)/story['fps']
             if car:
                 vis=pose_garage(shot,t,seconds,state)
+                keyed_visible(g['shell'],g['shell_alpha'][0].default_value < .999,frame,cache)
                 for key,visible in vis.items():
                     objects=g.get(key,props.get(key,[]))
                     if not isinstance(objects,list):objects=[objects]

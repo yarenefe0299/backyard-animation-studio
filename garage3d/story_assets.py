@@ -88,6 +88,9 @@ def add_paving_rim(environment,materials):
     for sign in (-1,1):
         result.append(_put(box('Drive / precision opening trim',(sign*1.49,0,-.06),(.06,5.06,.12),paving[2%len(paving)],bevel=.006),environment['ground'],'paving_rim'))
         result.append(_put(box('Drive / precision opening trim',(0,sign*2.565,-.06),(2.92,.07,.12),paving[2%len(paving)],bevel=.006),environment['ground'],'paving_rim'))
+    for x in [-1.49,1.49]:
+        for y in [-2.565,2.565]:
+            result.append(_put(box('Drive / precision trim corner',(x,y,-.06),(.06,.07,.12),paving[2%len(paving)],bevel=.006),environment['ground'],'paving_rim'))
     return result
 
 

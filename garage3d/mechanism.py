@@ -46,9 +46,10 @@ def build_mechanism(m):
         mids.append(mid)
         rods.append(rod)
     for x in [-1.49,1.49]:
-        for y in [-2.27,2.27]:
+        for y in [-2.58,2.58]:
             box('Fixed guide mast', (x,y,-1.855),(.06,.12,3.45),m['steel'],bevel=.009)
             box('Carriage guide shoe',(x-math.copysign(.02,x),y,-.37),(.14,.24,.21),m['blue'],lift,.025)
+            box('Guide shoe outrigger plate',(math.copysign(1.36,x),math.copysign(2.46,y),-.28),(.24,.40,.10),m['black'],lift,.012)
             for z in [-3.3,-2.2,-1.1,-.15]:
                 box('Wall rail bracket',(x,y,z),(.26,.25,.08),m['black'],bevel=.01)
     box('Oil reservoir rounded tank',(-.75,-2.10,-3.29),(.7,.58,.52),m['blue'],bevel=.065)

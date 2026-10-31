@@ -120,6 +120,10 @@ def cover_check(scene, car, frame):
             clearance=underside-car_top
             assert clearance > .008, f'Roof intersects car or aerial at frame {frame}: clearance {clearance:.5f}m'
             measured.append(clearance)
+        roof_bounds=[(min(v[a][0] for v in part_bounds),max(v[a][1] for v in part_bounds)) for a in range(3)]
+        for guide in [o for o in scene.objects if o.name.startswith('Fixed guide mast')]:
+            gb=bounds(guide)
+            assert not all(min(gb[a][1],roof_bounds[a][1])-max(gb[a][0],roof_bounds[a][0])>.001 for a in range(3)), f'Roof crosses fixed guide at frame {frame}'
         if abs(abs(cover.location.x)-.725)<.02:
             assert abs(cover.location.z)<.012, 'Closed roof should finish flush with driveway grade'
             assert car_top < -.05, 'Cover must not close until the entire car is below grade'
@@ -258,6 +262,10 @@ def garage_checks(scene, shots):
         late=frame_at(scene,arrival,min(arrival['duration_s']*.72,arrival['duration_s']-.15))
         at(scene,late)
         assert min(socket.default_value for socket in reveal_sockets())>.99, 'The chamber must be revealed after parking'
+        shell=bpy.data.collections['ENV / removable front and right shell']
+        assert all(o.hide_render for o in shell.objects), 'Fully revealed ground must be hidden to avoid transparency-limit blackouts'
+        for sample in range(frame_at(scene,arrival,arrival['duration_s']*.80),arrival['end_frame']+1,max(1,scene.render.fps//5)):
+            at(scene,sample);cover_check(scene,car,sample)
         at(scene,arrival['end_frame'])
         assert abs(lift.matrix_world.translation.z+2.1)<.01, 'Arrival payoff must lower the car into the chamber'
         assert max(bounds(obj)[2][1] for obj in geometry(car))<-.05, 'Entire parked car, including aerial, must fit below grade'

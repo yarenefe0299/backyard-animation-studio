@@ -28,6 +28,7 @@ def main():
     args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     output=args.output.resolve();plan=make_plan(args.story,output,args.quality,args.scope)
     scene,camera=configure_scene(args.quality)
+    scene.cycles.transparent_max_bounces=32
     scene.render.resolution_x,scene.render.resolution_y,scene.cycles.samples=PRESETS[args.quality]
     mats=library();mats['silver'].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=(.38,.43,.47,1)
     if plan['template']=='garage':
