@@ -33,6 +33,8 @@ The workflow installs Blender and FFmpeg on a remote Ubuntu 24.04 runner. It doe
 
 All presets render the same geometry and animation at 30 fps. Resolution/sample reduction controls time without replacing the scene with placeholder assets. This pipeline does not claim that small draft frames prove final production quality.
 
+The renderer detects whether Blender was compiled with Open Image Denoise and enables Cycles denoising only when supported. Some distribution builds, including the local Debian Blender build used during development, omit it. Draft images can show sampling grain at 16 samples; `scene_report.json` records the actual denoising state. Use review quality to inspect materials and shadows, and increase samples for clean final exports if the runner's build lacks denoising.
+
 ## Optional command-line use
 
 These commands are for a machine with Blender 4.x, Python 3, and FFmpeg/FFprobe installed. You can use the remote workflow instead.
@@ -51,11 +53,22 @@ blender --background --threads 2 --python-exit-code 1 \
   --python garage3d/style_test.py -- \
   --output garage3d/output --quality review --mode stills
 
+# Render one comparison view while adjusting materials or framing.
+blender --background --threads 2 --python-exit-code 1 \
+  --python garage3d/style_test.py -- \
+  --output garage3d/output/review --quality review --mode stills --still hydraulics
+
+# Inspect evaluated geometry in the saved master without rendering again.
+blender --background --python-exit-code 1 \
+  --python garage3d/test_scene.py -- garage3d/output/style_test.blend
+
 # Meaningful encoder tests, including a real H.264 round trip when installed.
 python3 -m unittest discover -s garage3d -p 'test_encode.py' -v
 ```
 
-`--mode build` saves the scene without rendering. `--mode animation` renders the animation sequence. `--mode stills` renders the three review images. Use separate output folders for different qualities; the encoder rejects missing, extra, or inconsistently sized frames. The encoder uses H.264 `yuv420p`, Rec.709 tags, a fast-start MP4, and no artificial repetition of stills to fill missing animation. FFmpeg errors and verification failures propagate as workflow failures.
+`--mode build` saves the scene without rendering. `--mode animation` renders the animation sequence. `--mode stills` renders the three review images; add `--still exterior`, `--still cutaway`, or `--still hydraulics` to select one view. Use separate output folders for different qualities; the encoder rejects missing, extra, or inconsistently sized frames. The encoder uses H.264 `yuv420p`, Rec.709 tags, a fast-start MP4, and no artificial repetition of stills to fill missing animation. FFmpeg errors and verification failures propagate as workflow failures.
+
+`test_scene.py` opens the actual saved `.blend` file and evaluates all 120 animation poses. It measures tire contact against the modeled platform pavers, checks overlap between both telescopic stages and their barrels, verifies a steady descent and moving camera, and checks that the car fits below grade at the end. It also measures animated oil tracer positions against the real curved pressure-pipe centerlines at five poses across the shot. The workflow runs this integration check after rendering the stills and before spending time on the animation.
 
 ## Reference and visual review gate
 
@@ -70,10 +83,14 @@ Only after explicit visual review should production expand to the manifest's 12 
 ## Source layout
 
 - `style_test.py` builds the master, configures views and keyframes, renders PNG frames and saves the `.blend` scene.
+- `materials.py` supplies shared procedural concrete, metal, glass, rubber, and overlay materials; the environment adds architectural and soil finishes.
+- `geometry.py` supplies reusable modeled-edge, mesh and curve construction helpers.
 - `car.py` models the reusable silver hatchback.
 - `environment.py` models the house, driveway, soil and retaining masonry.
+- `mechanism.py` builds the connected carriage, telescopic hydraulics, reservoir, pipes and animated oil tracers.
 - `encode.py` checks the sequence, invokes FFmpeg, then verifies the real MP4 with FFprobe.
+- `test_scene.py` inspects measured geometry and evaluated animation in the saved Blender master.
 - `test_encode.py` checks sequence rejection and the video encode/inspect path.
 - `../.github/workflows/render-garage-style-test.yml` installs tools and performs the remote render/upload.
 
-Generated renders and `.blend` files belong in ignored output directories or Actions artifacts, not in the source history. See the pull request's validation notes for what was actually executed; this README specifies how to run the pipeline and does not assert that any render has already completed.
+Generated renders and `.blend` files belong in ignored output directories or Actions artifacts, not in the source history. See [VALIDATION.md](VALIDATION.md) and the pull request's validation notes for what was actually executed; this README specifies how to run the pipeline and does not assert that any render has already completed.

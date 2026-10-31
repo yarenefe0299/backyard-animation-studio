@@ -52,6 +52,9 @@ def build_mechanism(m):
             for z in [-3.3,-2.2,-1.1,-.15]:
                 box('Wall rail bracket',(x,y,z),(.26,.25,.08),m['black'],bevel=.01)
     box('Oil reservoir rounded tank',(-.75,-2.10,-3.29),(.7,.58,.52),m['blue'],bevel=.065)
+    for dx in [-.23,.23]:
+        for dy in [-.18,.18]:
+            box('Reservoir isolation foot',(-.75+dx,-2.10+dy,-3.577),(.10,.12,.065),m['rubber'],bevel=.009)
     cylinder('Reservoir fill cap',(-.95,-2.10,-3.03),(-.95,-2.10,-2.94),.06,m['brass'])
     box('Hydraulic valve manifold',(-.56,-2.10,-2.96),(.31,.3,.13),m['steel'],bevel=.02)
     cylinder('Pump motor casing',(-.75,-2.10,-2.88),(-.75,-1.73,-2.88),.14,m['black'])

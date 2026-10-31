@@ -153,7 +153,7 @@ def build_environment(materials=None):
     pavers=[_material('Driveway limestone %d'%i,(.50+i*.014,.485+i*.013,.43+i*.012),.8,noise=.25,scale=40) for i in range(5)]
     # Earth banks make a real cavity. Facing banks are removed only in cutaway views.
     banks=[((-4.5,-1.9,-4,5),cutaway,'Left bank'),((-1.9,4.5,2.98,5),cutaway,'Rear bank'),((1.9,4.5,-4,1.2),exterior,'Right bank'),((1.9,4.5,1.2,2.98),cutaway,'Right soil return'),((-1.9,1.9,-4,-2.98),exterior,'Front bank')]
-    levels=[0,-.35,-1.25,-2.45,-4.05]
+    levels=[-.18,-.35,-1.25,-2.45,-4.05]
     for bounds,col,label in banks:
         for i in range(4):
             _soil_piece(label+' / '+str(i),bounds,levels[i],levels[i+1],soils[i],col,rng)
@@ -209,8 +209,10 @@ def build_environment(materials=None):
                 if hi-lo>.08:_box('Masonry / stretcher',((lo+hi)/2,y-.012,z),(hi-lo,.27,.365),rng.choice(blocks),col,.014)
         _box('Wall / concrete coping',(0,y,-.035),(3.73,.39,.16),concrete,col,.022)
     wall_x(-1.70,cutaway);wall_y(2.76,cutaway)
+    _box('Left masonry / finished cut end',(-1.70,-2.855,-1.85),(.30,.065,3.5),concrete,cutaway,.008)
     wall_x(1.70,exterior,ymax=1.2);wall_y(-2.76,exterior)
     wall_x(1.70,cutaway,ymin=1.2)
+    _box('Right return / finished cut end',(1.70,1.19,-1.85),(.30,.065,3.5),concrete,cutaway,.008)
     # A continuous bedding ring supports every sett; boundary stones are cut to
     # the rectangular opening instead of leaving arbitrary grid-sized holes.
     for loc,size in [((-2.52,.1,-.105),(2.02,8.2,.13)),((2.52,.1,-.105),(2.02,8.2,.13)),((0,-3.35,-.105),(3.04,1.5,.13)),((0,3.40,-.105),(3.04,1.6,.13))]:
