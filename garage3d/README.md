@@ -31,6 +31,8 @@ The workflow installs Blender and FFmpeg on a remote Ubuntu 24.04 runner. It doe
 | `review` | 540 × 960 | 64 | Materials, shadows and detail review |
 | `final` | 1080 × 1920 | 128 | Full-resolution style-test export after review |
 
+The workflow always renders stills at **review** quality (or **final** when selected), while the animation uses the selected quality. This gives useful material-detail images before merging the PR, alongside a small draft motion test. `stills_report.json` preserves the still-render settings; `scene_report.json` records the animation invocation. Direct CLI runs apply their chosen quality to every requested render.
+
 All presets render the same geometry and animation at 30 fps. Resolution/sample reduction controls time without replacing the scene with placeholder assets. This pipeline does not claim that small draft frames prove final production quality.
 
 The renderer detects whether Blender was compiled with Open Image Denoise and enables Cycles denoising only when supported. Some distribution builds, including the local Debian Blender build used during development, omit it. Draft images can show sampling grain at 16 samples; `scene_report.json` records the actual denoising state. Use review quality to inspect materials and shadows, and increase samples for clean final exports if the runner's build lacks denoising.

@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 180
     env:
       QUALITY: ${{ inputs.quality || 'draft' }}
+      STILL_QUALITY: ${{ inputs.quality == 'final' && 'final' || 'review' }}
       OMP_NUM_THREADS: '2'
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +40,8 @@ jobs:
         run: python3 -m unittest discover -s garage3d -p 'test_encode.py' -v
       - name: Build master scene and render three review stills
         run: |
-          blender --background --threads 2 --python-exit-code 1 --python garage3d/style_test.py -- --output garage3d/output --quality "$QUALITY" --mode stills
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/style_test.py -- --output garage3d/output --quality "$STILL_QUALITY" --mode stills
+          cp garage3d/output/scene_report.json garage3d/output/stills_report.json
       - name: Verify measured tire contact, hydraulics and camera motion
         run: blender --background --threads 2 --python-exit-code 1 --python garage3d/test_scene.py -- garage3d/output/style_test.blend
       - name: Render actual moving geometry and camera
