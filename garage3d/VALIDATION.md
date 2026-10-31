@@ -2,6 +2,19 @@
 
 Visual approval remains pending. A completed draft render is not reference-quality sign-off or a completed 1080 × 1920 export.
 
+## Current completed direction reviews
+
+[Review story direction run 41226958670](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41226958670) succeeded at render-source commit `1246209052a34a4279330278e5f39e473e7edcea`. Both prepare jobs, all 13 frame chunks and both assembly jobs passed (17 jobs total).
+
+| Review | Actual frames / duration | Completed artifact |
+| --- | --- | --- |
+| Opening: approach, parking, reveal and descent | 180 / 6.000000 seconds | [Download opening ZIP](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41226958670/artifacts/13052920841) |
+| Mechanism: pump, oil line, cylinder and lifting car | 210 / 7.000000 seconds | [Download mechanism ZIP](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41226958670/artifacts/13052188754) |
+
+Both actual encoder/FFprobe reports record 270 × 480, 30 fps, H.264/yuv420p/Rec.709, 48 kHz mono AAC, denoising before burned outlined captions, and status `encoded_and_verified`. Separate SRT/ASS, contact sheets and sharper stills are included. [Opening master/stills](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41226958670/artifacts/13053000047) and [mechanism master/stills](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41226958670/artifacts/13052805973) are also complete. Download artifacts before 14 November 2026.
+
+MP4 SHA-256: opening `67c278a9c2ac6a281a6dc97e6318ee3bf63e1bbeaa557d0b3556185df67686a4`; mechanism `3381edc8029508edba6e2f907a983dadd2c432b0f4ffcfda31aa89bc527724ce`. Reports were read from the successful assembly logs. Representative local frames, including captioned pump/valve views, were inspected; the remote MP4s have not been manually watched end to end through the connector. Visual approval remains pending. The revised full 51-second film and 1080 × 1920 export have not been rendered.
+
 ## Previous narrative renders (earlier direction)
 
 [GitHub Actions run 41189095379](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41189095379) succeeded at source commit `749688c0e2bc8268f7a3d33546662aac1417ae58`: prepare, all 17 frame chunks, and assembly passed. Its [completed video artifact](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41189095379/artifacts/13039991069) contains the film, captions, review images and reports. The [review artifact](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41189095379/artifacts/13038755443) also contains the editable master. Download these before their 14 November 2026 expiration.
@@ -49,6 +62,6 @@ The latest user feedback accepts the models and requests a stronger hook, meanin
 
 All 53 local unit tests passed. The new direction loader checks timing, unknown subjects/shot IDs, overlapping travel, confined file paths and source hashes. Tests cover camera beats, caption changes at cuts and correct extraction of a later section from a full recording/SRT. Both review workflow files passed actionlint 1.7.7. The original scene-modeling files remain unchanged.
 
-A new full Blender master was built, with the camera pass revised on that persistent geometry. Representative frames were rendered and inspected. Subsequent lighting and cutaway isolation remove the power lead from the valve view and preserve metal/enamel contrast. Captions reserve space below small parts. The revised saved master passed all 36 sampled poses and the complete sensor-stop check. Focal parts occupy 61.4% (pump assembly), 47.8% (moving rod), 66.6% (valve housing) and 11.2% (sensor lens, within its larger assembly) of frame height in the measured close-ups. Checks require the parts to be rendered and uncropped, with foreground occluders hidden. These checks are not visual approval. New review-video results are recorded after their actual renders finish; a saved master is not presented as a finished film.
+A new full Blender master was built, with the camera pass revised on that persistent geometry. Representative frames were rendered and inspected. Subsequent lighting and cutaway isolation remove the power lead from the valve view and preserve metal/enamel contrast. Captions reserve space below small parts. The revised saved master passed all 36 sampled poses and the complete sensor-stop check. Focal parts occupy 61.4% (pump assembly), 47.8% (moving rod), 66.6% (valve housing) and 11.2% (sensor lens, within its larger assembly) of frame height in the measured close-ups. Checks require the parts to be rendered and uncropped, with foreground occluders hidden. Both short reviews then completed on remote Blender 4.0.2, as recorded above. These checks and completed renders are not visual approval.
 
 Pull-request reviews now produce **opening** and **mechanism** videos separately through a reusable workflow, with scope-specific artifact names and concurrency groups. The revised complete 51-second film and final 1080 × 1920 film have not been rendered. Review these short direction tests before spending time on the complete timeline.
