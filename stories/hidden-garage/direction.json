@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "shots": {
+    "S01": [
+      {"at": 0, "view": "approach", "scale": 7.8, "end_scale": 7.0},
+      {"at": 2.0, "view": "driveway", "move": 0.3, "scale": 7.0},
+      {"at": 2.7, "view": "chamber", "move": 0.6, "scale": 8.1, "end_scale": 7.8}
+    ],
+    "S02": [
+      {"at": 0, "view": "excavation", "scale": 7.3, "end_scale": 6.0}
+    ],
+    "S03": [
+      {"at": 0, "view": "soil", "scale": 3.8, "end_scale": 3.6},
+      {"at": 2.3, "view": "excavation", "move": 0.4, "scale": 6.6}
+    ],
+    "S04": [
+      {"at": 0, "view": "wall", "scale": 4.7, "end_scale": 4.5},
+      {"at": 2.4, "view": "chamber", "move": 0.4, "scale": 7.8}
+    ],
+    "S05": [
+      {"at": 0, "view": "load", "scale": 6.0, "end_scale": 4.6}
+    ],
+    "S06": [
+      {"at": 0, "view": "pump", "scale": 1.55, "end_scale": 1.4},
+      {"at": 1.8, "view": "line", "move": 0.4, "scale": 2.65},
+      {"at": 2.7, "view": "cylinder", "move": 0.4, "scale": 2.6},
+      {"at": 4.7, "view": "lift", "scale": 7.8, "end_scale": 7.3}
+    ],
+    "S07": [
+      {"at": 0, "view": "rim", "scale": 5.7},
+      {"at": 1.1, "view": "flood", "move": 0.4, "scale": 6.0, "end_scale": 5.7}
+    ],
+    "S08": [
+      {"at": 0, "view": "sump", "scale": 1.7, "end_scale": 1.6},
+      {"at": 3.0, "view": "valve", "move": 0.4, "scale": 0.68, "end_scale": 0.62}
+    ],
+    "S09": [
+      {"at": 0, "view": "pinch", "scale": 2.8, "end_scale": 2.6}
+    ],
+    "S10": [
+      {"at": 0, "view": "sensor", "scale": 0.95},
+      {"at": 0.7, "view": "beam", "move": 0.2, "scale": 5.4},
+      {"at": 2.8, "view": "load", "scale": 6.4}
+    ],
+    "S11": [
+      {"at": 0, "view": "chamber", "scale": 8.1},
+      {"at": 2.1, "view": "seam", "scale": 3.5, "end_scale": 3.2}
+    ],
+    "S12": [
+      {"at": 0, "view": "driveway", "scale": 7.2},
+      {"at": 2.5, "view": "chamber", "scale": 8.1},
+      {"at": 3.9, "view": "driveway", "move": 0.3, "scale": 7.0}
+    ]
+  }
+}

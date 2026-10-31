@@ -1,0 +1,248 @@
+name: Render engineering story
+
+on:
+  workflow_call:
+    inputs:
+      story_folder:
+        type: string
+        default: stories/hidden-garage
+      scope:
+        type: string
+        default: mechanism
+      quality:
+        type: string
+        default: draft
+  workflow_dispatch:
+    inputs:
+      story_folder:
+        description: 'Repository story folder, for example stories/hidden-garage'
+        type: string
+        default: stories/hidden-garage
+        required: true
+      scope:
+        description: 'Opening, focused mechanism review, or the complete timeline'
+        type: choice
+        options: [mechanism, opening, full]
+        default: mechanism
+      quality:
+        description: 'Render quality; final uses substantially more CPU time'
+        type: choice
+        options: [draft, review, final]
+        default: draft
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engineering-story-${{ github.ref }}-${{ inputs.scope || 'mechanism' }}
+  cancel-in-progress: true
+
+env:
+  STORY_FOLDER: ${{ inputs.story_folder || 'stories/hidden-garage' }}
+  SCOPE: ${{ inputs.scope || 'mechanism' }}
+  QUALITY: ${{ inputs.quality || 'draft' }}
+  OMP_NUM_THREADS: '2'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        name: Validate the story folder and plan exact frame chunks
+        run: |
+          python3 garage3d/pipeline.py plan --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE" --github-output "$GITHUB_OUTPUT"
+      - name: Install free render, voice and video tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends blender ffmpeg python3 espeak-ng fonts-dejavu-core
+          blender --version
+          ffmpeg -version
+          espeak-ng --version
+      - name: Check story validation, audio and encoder failure handling
+        run: |
+          for pattern in test_story.py test_direction.py test_audio.py test_encode.py test_pipeline.py; do
+            python3 -m unittest discover -s garage3d -p "$pattern" -v
+          done
+      - name: Generate narration, outlined captions and sound effects
+        run: |
+          python3 garage3d/pipeline.py audio --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE"
+      - name: Build the persistent animated master
+        run: |
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/render_story.py -- --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE" --mode build
+      - name: Check the actual saved geometry and story motion
+        run: |
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/test_story_scene.py -- garage3d/output/story/master.blend
+      - name: Render three review stills without changing the animation master
+        env:
+          STILL_QUALITY: ${{ inputs.quality == 'final' && 'final' || 'review' }}
+        run: |
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/render_story.py -- --story "$STORY_FOLDER" --output garage3d/output/story-review --quality "$STILL_QUALITY" --scope "$SCOPE" --mode stills
+          python3 garage3d/denoise.py install
+          python3 garage3d/denoise.py frames --input garage3d/output/story-review --output garage3d/output/story/review --pattern "preview*.png"
+          cp garage3d/output/story-review/render_report.json garage3d/output/story/review/stills_report.json
+      - name: Preserve the self-contained master for render workers
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-master-${{ github.run_id }}-${{ env.SCOPE }}
+          path: |
+            garage3d/output/story/master.blend
+            garage3d/output/story/plan.json
+            garage3d/output/story/render_report.json
+            garage3d/output/story/scene_checks.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+      - name: Preserve audio, captions, plan and review stills
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-production-${{ github.run_id }}-${{ env.SCOPE }}
+          path: |
+            garage3d/output/story/*.wav
+            garage3d/output/story/*.ass
+            garage3d/output/story/*.srt
+            garage3d/output/story/*.json
+            garage3d/output/story/review/
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+      - name: Upload available review images, master and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-review-${{ github.run_number }}-${{ env.SCOPE }}
+          path: |
+            garage3d/output/story/master.blend
+            garage3d/output/story/*.json
+            garage3d/output/story/*.ass
+            garage3d/output/story/*.srt
+            garage3d/output/story/review/
+            garage3d/output/story-review/preview*.png
+            garage3d/output/story-review/render_report.json
+          if-no-files-found: warn
+          overwrite: true
+          retention-days: 14
+
+  render:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends blender python3
+      - name: Download this run's validated master
+        uses: actions/download-artifact@v4
+        with:
+          name: engineering-master-${{ github.run_id }}-${{ env.SCOPE }}
+          path: garage3d/output/story
+      - name: Render this exact frame range
+        env:
+          FRAME_FIRST: ${{ matrix.from }}
+          FRAME_LAST: ${{ matrix.to }}
+        run: |
+          mkdir -p garage3d/output/story/frames
+          blender --background garage3d/output/story/master.blend --threads 2 --frame-start "$FRAME_FIRST" --frame-end "$FRAME_LAST" --render-output "$GITHUB_WORKSPACE/garage3d/output/story/frames/frame_" --render-format PNG --render-anim
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import struct
+          first, last = int(os.environ['FRAME_FIRST']), int(os.environ['FRAME_LAST'])
+          root = Path('garage3d/output/story/frames')
+          expected = {f'frame_{frame:04d}.png' for frame in range(first, last + 1)}
+          actual = {path.name for path in root.glob('frame_*.png')}
+          if actual != expected:
+              raise SystemExit(f'Incomplete frame chunk: missing={sorted(expected-actual)}, extra={sorted(actual-expected)}')
+          dimensions = set()
+          for name in sorted(expected):
+              with (root/name).open('rb') as source:
+                  header = source.read(24)
+              if len(header) != 24 or header[:8] != b'\x89PNG\r\n\x1a\n' or header[12:16] != b'IHDR':
+                  raise SystemExit(f'Invalid rendered PNG: {name}')
+              dimensions.add(struct.unpack('>II', header[16:24]))
+          if len(dimensions) != 1 or any(value <= 0 or value % 2 for value in next(iter(dimensions))):
+              raise SystemExit(f'Inconsistent or invalid frame dimensions: {dimensions}')
+          print(f'Checked {len(expected)} real frames in {dimensions.pop()}')
+          PY
+      - name: Preserve the completed frame chunk
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-frames-${{ github.run_id }}-${{ env.SCOPE }}-${{ matrix.id }}
+          path: garage3d/output/story/frames/*.png
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+      - name: Preserve partial frames for diagnosing a failed chunk
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-partial-${{ github.run_id }}-${{ env.SCOPE }}-${{ matrix.id }}
+          path: garage3d/output/story/frames/*.png
+          if-no-files-found: warn
+          overwrite: true
+          retention-days: 1
+
+  assemble:
+    needs: [prepare, render]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install video and caption tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg python3 fonts-dejavu-core
+      - name: Download the plan, audio, captions and review stills
+        uses: actions/download-artifact@v4
+        with:
+          name: engineering-production-${{ github.run_id }}-${{ env.SCOPE }}
+          path: garage3d/output/story
+      - name: Download all completed frame chunks
+        uses: actions/download-artifact@v4
+        with:
+          pattern: engineering-frames-${{ github.run_id }}-${{ env.SCOPE }}-*
+          path: garage3d/output/story/frames
+          merge-multiple: true
+      - name: Encode captions and sound, then verify the actual MP4
+        run: |
+          python3 garage3d/pipeline.py assemble --output garage3d/output/story
+          test -s garage3d/output/story/story.mp4
+          test -s garage3d/output/story/video_report.json
+      - name: Upload the completed video
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-video-${{ github.run_number }}-${{ env.QUALITY }}-${{ env.SCOPE }}
+          path: |
+            garage3d/output/story/story.mp4
+            garage3d/output/story/video_report.json
+            garage3d/output/story/audio_report.json
+            garage3d/output/story/denoise_report.json
+            garage3d/output/story/captions.ass
+            garage3d/output/story/captions.srt
+            garage3d/output/story/plan.json
+            garage3d/output/story/review/
+            garage3d/output/story/contact*.png
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 14
+      - name: Preserve available assembly diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-assembly-${{ github.run_number }}-${{ env.SCOPE }}
+          path: |
+            garage3d/output/story/*.json
+            garage3d/output/story/*.ass
+            garage3d/output/story/*.srt
+          if-no-files-found: warn
+          overwrite: true
+          retention-days: 14

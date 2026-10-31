@@ -1,0 +1,25 @@
+name: Review story direction
+
+on:
+  pull_request:
+    paths:
+      - 'garage3d/**'
+      - 'stories/**'
+      - '.github/workflows/render-engineering-story.yml'
+      - '.github/workflows/review-story-direction.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  direction:
+    name: Direction review (${{ matrix.scope }})
+    strategy:
+      fail-fast: false
+      matrix:
+        scope: [opening, mechanism]
+    uses: ./.github/workflows/render-engineering-story.yml
+    with:
+      story_folder: stories/hidden-garage
+      scope: ${{ matrix.scope }}
+      quality: draft

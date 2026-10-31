@@ -1,0 +1,67 @@
+name: Render garage style test
+
+on:
+  workflow_dispatch:
+    inputs:
+      quality:
+        description: 'Render size and samples (final is substantially slower)'
+        type: choice
+        options: [draft, review, final]
+        default: draft
+
+permissions:
+  contents: read
+
+concurrency:
+  group: garage-style-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      QUALITY: ${{ inputs.quality || 'draft' }}
+      STILL_QUALITY: ${{ inputs.quality == 'final' && 'final' || 'review' }}
+      OMP_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install free render and video tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends blender ffmpeg python3
+          blender --version
+          ffmpeg -version
+      - name: Check encoder failure handling
+        run: python3 -m unittest discover -s garage3d -p 'test_encode.py' -v
+      - name: Build master scene and render three review stills
+        run: |
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/style_test.py -- --output garage3d/output --quality "$STILL_QUALITY" --mode stills
+          cp garage3d/output/scene_report.json garage3d/output/stills_report.json
+      - name: Verify measured tire contact, hydraulics and camera motion
+        run: blender --background --threads 2 --python-exit-code 1 --python garage3d/test_scene.py -- garage3d/output/style_test.blend
+      - name: Render actual moving geometry and camera
+        run: |
+          blender --background --threads 2 --python-exit-code 1 --python garage3d/style_test.py -- --output garage3d/output --quality "$QUALITY" --mode animation
+      - name: Encode and verify four-second H.264 preview
+        run: python3 garage3d/encode.py --output garage3d/output
+      - name: Upload completed style-test video
+        uses: actions/upload-artifact@v4
+        with:
+          name: garage-style-video-${{ github.run_number }}-${{ env.QUALITY }}
+          path: |
+            garage3d/output/style-test.mp4
+            garage3d/output/video_report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload available stills, scene, and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: garage-style-review-${{ github.run_number }}-${{ env.QUALITY }}
+          path: |
+            garage3d/output/*.png
+            garage3d/output/*.blend
+            garage3d/output/*.json
+          if-no-files-found: warn
+          retention-days: 14

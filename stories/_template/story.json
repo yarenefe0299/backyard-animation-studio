@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "my-story",
+  "title": "My Hydraulic Story",
+  "template": "hydraulic_lab",
+  "fps": 30,
+  "audio": {"mode": "espeak", "voice": "en-us", "rate": 165}
+}
