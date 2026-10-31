@@ -1,37 +1,37 @@
 # How to Hide a Car Under Your Driveway
 
-## S01 | 7.0 | arrive | arrival
-You drive home, park, and press one button. Now watch your car disappear beneath the driveway.
+## S01 | 6.0 | arrive | arrival
+Park here, and your car vanishes. But getting it back takes more than a hole.
 
 ## S02 | 3.4 | excavate | cutaway
-First, clear a chamber beneath the parking space.
+Start with a chamber. Now the ground has a problem.
 
-## S03 | 4.0 | collapse | cutaway
-Loose soil crumbles. Without support, that opening could swallow your car.
+## S03 | 3.6 | collapse | cutaway
+Without support, loose soil crumbles right into your parking space.
 
-## S04 | 4.2 | reinforce | cutaway
-Reinforced concrete walls and steel beams give the chamber a rigid frame.
+## S04 | 4.3 | reinforce | cutaway
+Steel goes in first. Concrete locks it into a rigid box.
 
-## S05 | 2.6 | load | hydraulics
-But the car still needs a lift.
+## S05 | 2.4 | load | hydraulics
+But a hole can't lift a car.
 
-## S06 | 6.1 | hydraulics | hydraulics
-A pump pushes oil into hydraulic cylinders. Their rods extend, carrying the platform and car together.
+## S06 | 7.0 | hydraulics | hydraulics
+This pump forces oil through these pipes. Pressure extends the cylinder rods, raising the entire car.
 
-## S07 | 4.0 | rain | cutaway
-Then rain sneaks in. Your secret garage becomes a rather expensive swimming pool.
+## S07 | 3.5 | rain | cutaway
+Then it rains. Your hidden garage becomes a very expensive swimming pool.
 
-## S08 | 4.2 | drainage | drainage
-A floor drain, sump pump, and one-way valve move that water out.
+## S08 | 5.7 | drainage | drainage
+Water drains here. This pump sends it out. A one-way valve keeps it from returning.
 
-## S09 | 3.2 | pinch | sensor
-Now a crate reaches the edge. That's a dangerous pinch point.
+## S09 | 2.7 | pinch | sensor
+Then something enters the gap. The platform keeps moving.
 
-## S10 | 3.8 | sensors | sensor
-Sensors detect the obstruction and stop the platform before anything gets trapped.
+## S10 | 4.4 | sensors | sensor
+Break this beam, and the lift stops before the gap closes.
 
-## S11 | 4.0 | conceal | exterior
-A matching paved cover slides shut, hiding the chamber and its mechanism.
+## S11 | 3.5 | conceal | exterior
+Matching paving slides shut. From above, you'd never know it's there.
 
 ## S12 | 4.5 | payoff | cutaway
-One button brings your car back. Press again, and your driveway keeps its secret.
+Press once. Your car returns. Press again, and the driveway keeps its secret.

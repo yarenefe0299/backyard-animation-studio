@@ -28,6 +28,41 @@ def write_recording(path, duration):
 
 
 class AudioTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('ffmpeg'),'FFmpeg not installed')
+    def test_caption_zone_changes_even_when_a_phrase_spans_a_cut(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);story=example()
+            story['shots'][0]['narration']='The pressure pushes.'
+            story['shots'][0]['direction']=[{'at':0,'view':'pump','move':0,'scale':1.6,'end_scale':1.6},
+                                            {'at':1,'view':'lift','move':0,'scale':7.8,'end_scale':7.8}]
+            result=prepare_audio(story,root,root/'output')
+            captions=Path(result['captions_ass']).read_text()
+            self.assertIn('pos(540,1640)',captions)
+            self.assertIn('pos(540,570)',captions)
+            cues=read_srt(result['captions_srt'],2)
+            self.assertTrue(all(cue['end']<=1 or cue['start']>=1 for cue in cues))
+
+    @unittest.skipUnless(shutil.which('ffmpeg'),'FFmpeg not installed')
+    def test_mechanism_excerpt_uses_later_recording_and_rebases_srt(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);write_recording(root/'voice.wav',6.)
+            with wave.open(str(root/'voice.wav'),'rb') as source:
+                values=array('h',source.readframes(source.getnframes()))
+            values[:3*SAMPLE_RATE]=array('h',[0])*(3*SAMPLE_RATE)
+            with wave.open(str(root/'voice.wav'),'wb') as out:
+                out.setparams((1,2,SAMPLE_RATE,0,'NONE','not compressed'));out.writeframes(values.tobytes())
+            (root/'words.srt').write_text('1\n00:00:00,500 --> 00:00:01,000\nOpening words\n\n2\n00:00:04,000 --> 00:00:05,000\nLater words\n')
+            story=example('file');story.update(source_duration_s=6.,source_start_s=3.5)
+            story['audio'].update(file='voice.wav',captions_file='words.srt')
+            result=prepare_audio(story,root,root/'output')
+            cues=read_srt(result['captions_srt'],2)
+            self.assertEqual([cue['text'] for cue in cues],['Later words'])
+            self.assertAlmostEqual(cues[0]['start'],.1+4/(6/5.8)-3.5,places=3)
+            with wave.open(result['narration']) as audio:
+                samples=array('h',audio.readframes(audio.getnframes()))
+                self.assertEqual(len(samples),2*SAMPLE_RATE)
+                self.assertGreater(max(abs(v) for v in samples[:SAMPLE_RATE]),1000)
+
     def test_tempo_chain_preserves_large_and_small_factors(self):
         for factor in [.1,.5,1,2,9]:
             stages=[float(part.split('=')[1]) for part in atempo_chain(factor).split(',')]

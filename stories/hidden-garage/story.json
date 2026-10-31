@@ -5,5 +5,6 @@
   "template": "garage",
   "fps": 30,
   "script": "script.md",
+  "direction": "direction.json",
   "audio": {"mode": "espeak", "voice": "en-us", "rate": 175}
 }

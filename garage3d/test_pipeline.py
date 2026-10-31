@@ -21,11 +21,14 @@ class PipelineTests(unittest.TestCase):
     def test_opening_and_full_plans_cover_exact_frames(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(__file__).resolve().parent.parent/'stories/hidden-garage'
-            for scope,n in [('opening',210),('full',1530)]:
+            for scope,n in [('opening',180),('mechanism',210),('full',1530)]:
                 p=make_plan(root,Path(d)/scope,scope=scope)
                 actual=[f for c in p['matrix']['include'] for f in range(c['from'],c['to']+1)]
                 self.assertEqual(actual,list(range(1,n+1)))
                 self.assertEqual(p['source_duration_s'],51)
+                if scope=='mechanism':
+                    self.assertEqual(p['source_start_s'],19.7)
+                    self.assertEqual((p['shots'][0]['id'],p['shots'][0]['start']),('S06',0))
     def test_changed_plan_rejects_existing_frames(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(__file__).resolve().parent.parent/'stories/hidden-garage'

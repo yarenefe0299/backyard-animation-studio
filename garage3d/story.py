@@ -17,7 +17,7 @@ TEMPLATES = {
 }
 CAMERAS = frozenset({'arrival', 'exterior', 'cutaway', 'hydraulics', 'drainage', 'sensor'})
 CONFIG_KEYS = frozenset({'schema_version', 'id', 'title', 'template', 'fps',
-                         'script', 'references', 'audio'})
+                         'script', 'references', 'audio', 'direction'})
 AUDIO_KEYS = frozenset({'mode', 'voice', 'rate', 'file', 'captions_file'})
 HEADER = re.compile(r'^##\s+(S\d{2,3})\s*\|\s*([0-9]+(?:\.[0-9]+)?)\s*\|\s*([a-z][a-z0-9_]*)\s*\|\s*([a-z][a-z0-9_]*)\s*$')
 SLUG = re.compile(r'^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$')
@@ -193,6 +193,17 @@ def load_story(directory):
             raise StoryError(f'Duplicate reference file: {relative}')
         reference_paths.add(relative)
         references.append({'path':relative, 'sha256':_sha(path), 'bytes':path.stat().st_size})
+    if 'direction' in config:
+        from direction import validate_direction
+        direction_file=_local_file(root,config['direction'],'Camera direction')
+        try:
+            document=json.loads(direction_file.read_text(encoding='utf-8'),object_pairs_hook=_unique_object)
+            directed=validate_direction(document,shots,template,fps)
+        except (ValueError,UnicodeDecodeError) as error:
+            raise StoryError(f'Invalid camera direction: {error}') from error
+        for shot in shots:
+            if shot['id'] in directed:shot['direction']=directed[shot['id']]
+        additional_sources.append(direction_file)
     sources = [config_path, script]+[root/r['path'] for r in references]+additional_sources
     digest = hashlib.sha256()
     for path in sorted(set(sources)):

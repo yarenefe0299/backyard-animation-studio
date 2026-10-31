@@ -1,4 +1,4 @@
-> **Current story pipeline:** see [STORIES.md](STORIES.md) for the arrival → parking → underground reveal → descent opening, the full 51-second story, and reusable story folders. Use **Render engineering story** for new videos. The four-second style test below remains a manual historical comparison.
+> **Current story pipeline:** see [STORIES.md](STORIES.md) for reusable story folders, and [DIRECTION.md](DIRECTION.md) for the revised hook, part-focused camera beats and short review videos. **Review story direction** renders the opening and mechanism on pull requests; **Render engineering story** supports manual exports, including the full 51-second timeline. The four-second style test below remains a manual historical comparison.
 
 # Historical hidden-driveway style test
 

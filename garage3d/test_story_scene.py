@@ -14,6 +14,7 @@ import bpy
 from mathutils import Vector
 from mathutils.geometry import interpolate_bezier
 from bpy_extras.object_utils import world_to_camera_view
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 
 
 def bounds(obj):
@@ -221,11 +222,20 @@ def drainage_hardware_checks(scene,shots):
     screen_positions=[]
     for frame in shot_frames(shot):
         at(scene,frame)
-        assert all(not obj.hide_render for obj in all_parts), f'Drainage hardware must be visible during S08 at frame {frame}'
+        view=None
+        if shot.get('direction'):
+            from direction import beat_at
+            view=beat_at(shot['direction'],(frame-shot['start_frame'])/scene.render.fps,shot['duration_s'])[0]['view']
+        required=geometry(body) if view=='valve' else all_parts
+        assert all(not obj.hide_render for obj in required), f'Focal drainage hardware must be visible during S08 at frame {frame}'
+        if view=='valve':assert all(obj.hide_render for obj in pump_parts), 'The pump power lead must not cross the valve close-up'
         axis=(body.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
         normal=(disc.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
         angles.append(math.acos(max(-1,min(1,axis.dot(normal)))))
-        for point in (pump.matrix_world@Vector((0,0,.26)),body.matrix_world.translation):
+        points=[pump.matrix_world@Vector((0,0,.26)),body.matrix_world.translation]
+        if shot.get('direction'):
+            points=points[:1] if view=='sump' else points[1:]
+        for point in points:
             projected=world_to_camera_view(scene,scene.camera,point)
             assert .05<projected.x<.95 and .22<projected.y<.85 and projected.z>0, 'Drainage close-up must frame the pump and valve above lower captions'
             screen_positions.append([projected.x,projected.y])
@@ -276,7 +286,7 @@ def garage_checks(scene, shots):
         assert abs(start_y+7)<.02, 'Car should begin down the approach, away from the house'
         start_alpha=[socket.default_value for socket in reveal_sockets()]
         assert start_alpha and max(start_alpha)<.005, 'Opening must keep the underground shell opaque before the reveal'
-        park_frame=frame_at(scene,arrival,2.8)
+        park_frame=frame_at(scene,arrival,arrival['duration_s']*1.9/6)
         at(scene,park_frame)
         finish_y=car.location.y
         assert abs(finish_y)<.02, 'Car must reach the centre of the driveway before descending'
@@ -337,6 +347,41 @@ def lab_checks(scene,shots):
     return {'platform_ranges':ranges,**fluid_check(scene,frames)}
 
 
+def directed_camera_checks(scene,shots):
+    """A named small part must occupy useful screen area, not hide in a wide shot."""
+    measurements=[]
+    for shot in shots:
+        for index,beat in enumerate(shot.get('direction',[])):
+            view=beat['view']
+            if view not in {'pump','cylinder','valve','sensor'}:continue
+            next_time=shot['direction'][index+1]['at'] if index+1<len(shot['direction']) else shot['duration_s']
+            seconds=min(beat['at']+beat['move']+.2,next_time-1/scene.render.fps)
+            at(scene,shot['start_frame']+round(seconds*scene.render.fps))
+            if view=='pump':
+                subjects=[obj for obj in scene.objects if obj.name.startswith(('Oil reservoir rounded','Pump motor casing','Hydraulic valve manifold'))]
+                minimum=.18
+            elif view=='cylinder':
+                root=min((obj for obj in scene.objects if obj.name.startswith('Telescopic final rod')),key=lambda obj:obj.location.x)
+                subjects=geometry(root);minimum=.18
+                if scene.get('story_template')=='garage':
+                    assert all(obj.hide_render for obj in scene.objects if obj.name.startswith('Fixed pressure barrel')), 'Cylinder close-up needs its transparent diagnostic shell'
+            elif view=='valve':
+                root=next(obj for obj in scene.objects if obj.get('story_role')=='check_valve_housing')
+                subjects=geometry(root);minimum=.22
+            else:
+                subjects=sorted([obj for obj in scene.objects if obj.name.startswith('Photoelectric sensor / optical lens')],key=lambda obj:obj.location.x)[:1]
+                minimum=.055
+            assert subjects and all(not obj.hide_render for obj in subjects), f'{view}: focal parts must be rendered'
+            points=[world_to_camera_view(scene,scene.camera,obj.matrix_world@Vector(corner)) for obj in subjects for corner in obj.bound_box]
+            height=max(p.y for p in points)-min(p.y for p in points)
+            assert minimum<height<.98, f'{view}: focal part occupies {height:.3f} of frame height; adjust its camera'
+            assert all(.01<p.x<.99 and .15<p.y<.90 and p.z>0 for p in points), f'{view}: focal part is cropped or overlaps lower captions'
+            if view in {'pump','cylinder','valve'} and scene.get('story_template')=='garage':
+                assert all(obj.hide_render for obj in scene.objects if obj.type=='MESH' and (obj.name.startswith('Reinforced platform deck') or obj.name.startswith('Car body'))), 'Detail cutaway must remove its foreground occluders'
+            measurements.append({'shot':shot['id'],'view':view,'frame':scene.frame_current,'subject_height_fraction':height})
+    return measurements
+
+
 def main():
     args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
     parser=argparse.ArgumentParser(description=__doc__)
@@ -348,19 +393,20 @@ def main():
     template=scene.get('story_template')
     assert template in ('garage','hydraulic_lab'), 'Expected a saved story master with template metadata'
     shots=json.loads(scene['story_shots'])
-    assert shots and scene.get('story_scope') in ('opening','full')
+    assert shots and scene.get('story_scope') in ('opening','mechanism','full')
     assert scene.frame_start==1 and scene.frame_end==shots[-1]['end_frame']
     assert all(a['end_frame']+1==b['start_frame'] for a,b in zip(shots,shots[1:])), 'Shot frames must cover one continuous timeline'
     camera=scene.camera
     assert camera and camera.animation_data
     for shot in shots:
-        at(scene,shot['start_frame']);start=camera.matrix_world.translation.copy()
+        at(scene,shot['start_frame']);start=camera.matrix_world.translation.copy();start_scale=camera.data.ortho_scale
         at(scene,shot['end_frame']);finish=camera.matrix_world.translation.copy()
-        assert (finish-start).length>.025, f'Camera must move within story beat {shot["id"]}'
+        assert shot.get('direction') or (finish-start).length>.025 or abs(camera.data.ortho_scale-start_scale)>.03, f'Camera must track, travel or zoom within story beat {shot["id"]}'
     frames=sorted({frame for shot in shots for frame in shot_frames(shot)})
     mechanics=mechanical_checks(scene,frames)
     measurements=garage_checks(scene,shots) if template=='garage' else lab_checks(scene,shots)
     measurements['mechanics']=mechanics
+    measurements['directed_camera']=directed_camera_checks(scene,shots)
     report={'status':'passed','story_id':scene.get('story_id'),'template':template,
             'scope':scene.get('story_scope'),'fps':scene.render.fps,'timeline_frames':scene.frame_end,
             'blender_version':bpy.app.version_string,'measurements':measurements}

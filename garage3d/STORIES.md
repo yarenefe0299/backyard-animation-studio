@@ -8,12 +8,12 @@ This is an automatic renderer for the declared 3D templates and actions. It does
 
 ## Render from an iPhone or browser
 
-1. Open the story pull request's **Checks → Render engineering story → Details**. Its automatic run renders the complete hidden-garage story at draft animation quality. The manual Run workflow form defaults to the opening for economical review. The workflow also renders sharper review images. Repository Actions must be enabled; GitHub can require the owner to approve a first contributor's workflow.
-2. After the new workflow is on the default branch, open **Actions → Render engineering story → Run workflow**. Select the branch containing your story, enter `stories/hidden-garage` or another story folder, choose **opening** or **full**, and choose a quality. The manual button may not appear while the workflow exists only on an unmerged branch. The initial pull-request run does not require merging to review the story.
-3. Wait for the run to finish. **opening** renders the first scripted shot, including its narration and captions. **full** renders every shot in the selected folder. Changing the narration or story beats requires editing the folder, not editing Blender code.
+1. Open the story pull request's **Checks → Review story direction → Details**. Its automatic run produces separate **opening** and **mechanism** videos at draft quality so the hook and close-ups can be reviewed first. The manual Render engineering story form defaults to mechanism review. The workflow renders sharper review images. Repository Actions must be enabled; GitHub can require the owner to approve a first contributor's workflow.
+2. After the new workflow is on the default branch, open **Actions → Render engineering story → Run workflow**. Select the branch containing your story, enter `stories/hidden-garage` or another story folder, choose **mechanism**, **opening** or **full**, and choose a quality. The manual button may not appear while the workflow exists only on an unmerged branch. The initial pull-request run does not require merging to review the direction.
+3. Wait for the run to finish. **mechanism** selects the first garage `hydraulics` section (seven seconds in this story), or the lab's first `extend` section. **opening** renders the first scripted shot, including narration and captions. **full** renders every shot. Changing narration, camera beats or supported story actions requires editing the folder, not Blender code.
 4. Download `engineering-video-…` from the run's **Artifacts**. It contains `story.mp4`, caption files, reports, and available review images. Download `engineering-review-…` for the editable master and diagnostic images. These are ZIP downloads; iPhone Files can extract them. GitHub requires sign-in for artifact downloads.
 
-The opening is a review deliverable. A green check proves the automated checks passed; it does not approve the visual style or factual content. Review the opening before spending CPU time on the complete episode, and review the complete film before publishing it.
+The mechanism and opening are review deliverables. A green check proves the automated checks passed; it does not approve the visual style or factual content. Review the focused explanation and hook before spending CPU time on the complete episode, and review the complete film before publishing it.
 
 ## Add your next story
 
@@ -23,6 +23,7 @@ Create a folder under `stories/`, using `stories/_template/` as a starting point
 stories/my-topic/
 ├── story.json
 ├── script.md
+├── direction.json          # optional authored focal views and camera timing
 ├── references/
 │   ├── style.md
 │   └── storyboard.jpg       # optional extra reference
@@ -70,7 +71,7 @@ The four heading fields are **shot ID | seconds | action | camera**. Shot IDs mu
 | `garage` | `arrive`, `excavate`, `collapse`, `reinforce`, `load`, `hydraulics`, `rain`, `drainage`, `pinch`, `sensors`, `conceal`, `payoff` |
 | `hydraulic_lab` | `pressure`, `extend`, `retract` |
 
-Camera names are `arrival`, `exterior`, `cutaway`, `hydraulics`, `drainage`, and `sensor`. Choose a camera that shows the cause of the action clearly. The action controls modeled movement; editing the narration alone does not invent an additional mechanism or physical event.
+Camera names are `arrival`, `exterior`, `cutaway`, `hydraulics`, `drainage`, and `sensor`. Choose a camera that shows the cause of the action clearly. For precise cuts, subject tracking and mechanism close-ups, add `"direction": "direction.json"` to `story.json` and follow [DIRECTION.md](DIRECTION.md). A beat names a modeled subject such as `pump`, `cylinder`, `valve` or `sensor`, plus its timing and framing. The action controls modeled movement; narration alone does not invent an additional mechanism or physical event.
 
 ## Narration, captions and sound
 
@@ -86,7 +87,7 @@ For a polished recorded voice, export a recording from iPhone Voice Memos, uploa
 }
 ```
 
-The recording and optional SRT belong inside the story folder. Author the recording and SRT against the declared full-story timings. Without an authored SRT, the automatic captions group the script into short phrases and estimate their timing within the measured speech windows; this is not phoneme-level or word-for-word alignment. Captions use bold white type with a black outline and camera-specific safe placement: lower for arrivals, sensors and drainage, upper on quiet wall space for hydraulic close-ups and cutaways. Procedural mechanical, water, rain and warning effects are mixed automatically. `audio.mode: "none"` is available when you intentionally want no narration.
+The recording and optional SRT belong inside the story folder. Author them against the full-story timings; mechanism scope extracts the matching interval automatically. Without an authored SRT, captions group the script into short phrases and estimate timing within the measured speech windows; this is not phoneme-level or word-for-word alignment. Captions use bold white type with a black outline. Directed views place them in each view's safe zone and split cues at camera-beat boundaries. Fallback cameras retain their earlier placement. Procedural mechanical, water, rain and warning effects are mixed automatically. `audio.mode: "none"` intentionally omits narration.
 
 ## Rendering and review
 

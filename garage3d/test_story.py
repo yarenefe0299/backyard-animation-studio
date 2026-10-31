@@ -167,7 +167,7 @@ class StoryTests(unittest.TestCase):
         lab=load_story(repository/'stories'/'hydraulic-basics')
         template=load_story(repository/'stories'/'_template')
         self.assertEqual((garage['frames'],garage['duration_s'],len(garage['shots'])),(1530,51.0,12))
-        self.assertEqual((garage['shots'][0]['action'],garage['shots'][0]['frames']),('arrive',210))
+        self.assertEqual((garage['shots'][0]['action'],garage['shots'][0]['frames']),('arrive',180))
         self.assertEqual((lab['template'],lab['frames']),('hydraulic_lab',450))
         self.assertEqual(template['template'],'hydraulic_lab')
         self.assertTrue(any(r['path'].endswith('storyboard.jpg') for r in garage['references']))

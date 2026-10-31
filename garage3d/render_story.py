@@ -7,7 +7,7 @@ import sys
 import bpy
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
-from pipeline import PRESETS,make_plan
+from pipeline import PRESETS,SCOPES,make_plan
 from style_test import configure_scene
 from materials import library
 from environment import build_environment
@@ -23,7 +23,7 @@ def main():
     p.add_argument('--story',type=Path,default=HERE.parent/'stories/hidden-garage')
     p.add_argument('--output',type=Path,default=HERE/'output/story')
     p.add_argument('--quality',choices=PRESETS,default='draft')
-    p.add_argument('--scope',choices=['opening','full'],default='opening')
+    p.add_argument('--scope',choices=SCOPES,default='opening')
     p.add_argument('--mode',choices=['build','stills','animation','all'],default='all')
     args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     output=args.output.resolve();plan=make_plan(args.story,output,args.quality,args.scope)
@@ -51,7 +51,11 @@ def main():
     def save_report():(output/'render_report.json').write_text(json.dumps(report,indent=2)+'\n')
     bpy.ops.wm.save_as_mainfile(filepath=str(output/'master.blend'));report['completed'].append('master.blend');save_report()
     if args.mode in ['stills','all']:
-        if plan['template']=='garage' and args.scope=='opening':times=[25,100,result['frames']]
+        if plan['template']=='garage' and args.scope=='opening':times=[min(25,result['frames']),min(70,result['frames']),result['frames']]
+        elif args.scope=='mechanism' and result['shots'][0].get('direction'):
+            shot=result['shots'][0]
+            choices=[beat for beat in shot['direction'] if beat['view'] in {'pump','cylinder','lift'}]
+            times=[min(result['frames'],1+round((beat['at']+beat['move']+.3)*plan['fps'])) for beat in choices[:3]]
         elif plan['template']=='garage':
             # Review distinct visual requirements, rather than three adjacent
             # construction beats that omit the installed mechanism entirely.

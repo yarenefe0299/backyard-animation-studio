@@ -207,8 +207,13 @@ def _soundtrack(narration, shots, duration):
             if action == 'arrive':
                 engine = .085*math.sin(2*math.pi*(85*t+25*t*t))+.04*low
                 hydraulic = .065*math.sin(2*math.pi*88*t)+.025*low
-                blend = max(0,min(1,(progress-.5)/.1))
-                value = engine*(1-blend)+hydraulic*blend
+                driving=max(0,min(1,(.33-progress)/.05))
+                lowering=max(0,min(1,(progress-.45)/.03,(.80-progress)/.03))
+                click=max(0,t-shot['duration_s']*.33)
+                latch=max(0,t-shot['duration_s']*.95)
+                value=engine*driving+hydraulic*lowering
+                if click>0:value+=.13*math.exp(-click*80)*noise
+                if latch>0:value+=.14*math.exp(-latch*45)*low
             elif action in {'extend','retract','hydraulics','conceal','payoff','load','pressure'}:
                 value = .075*math.sin(2*math.pi*83*t)+.024*math.sin(2*math.pi*169*t)+.045*low
             elif action in {'rain','drainage'}:
@@ -219,8 +224,11 @@ def _soundtrack(narration, shots, duration):
                 beat = t % .75
                 value = .16*math.exp(-beat*22)*math.sin(2*math.pi*920*beat)+.045*low
             elif action in {'pinch','sensors'}:
-                beat = t % .65
-                value = .065*math.sin(2*math.pi*840*t)*math.sin(math.pi*beat/.12)**2 if beat < .12 else 0
+                stop=.24 if action=='sensors' else .58
+                value=.025*math.sin(2*math.pi*83*t) if progress<stop else 0
+                beat=t-shot['duration_s']*stop
+                if action=='sensors' and 0<=beat<.18:
+                    value+=.10*math.sin(2*math.pi*840*t)*math.sin(math.pi*beat/.18)**2
             else:
                 value = 0.
             # Duck Foley beneath actual speech samples; no prerecorded SFX assets.
@@ -241,8 +249,11 @@ def prepare_audio(story, story_dir, output):
     if not math.isfinite(duration) or duration <= 0:
         raise ValueError('Story duration must be positive')
     source_duration = float(story.get('source_duration_s', duration))
+    source_start=float(story.get('source_start_s',0))
     if not math.isfinite(source_duration) or source_duration < duration:
         raise ValueError('Source duration must cover the requested scope')
+    if not math.isfinite(source_start) or source_start<0 or source_start+duration>source_duration+1e-6:
+        raise ValueError('Source excerpt must stay inside the complete story')
     recording_timing = None
     total = round(duration*SAMPLE_RATE)
     narration = array('h', [0])*total
@@ -269,9 +280,11 @@ def prepare_audio(story, story_dir, output):
             recording_duration = _duration(normalized)
             available = max(.01, source_duration-.2)
             samples, tempo = _convert(normalized,temporary/'fitted.wav',available,allow_slowdown=True)
-            offset = min(round(.1*SAMPLE_RATE),total)
-            recording_timing = {'source_duration':recording_duration, 'tempo_factor':tempo, 'leading_seconds':offset/SAMPLE_RATE}
-            narration[offset:offset+min(len(samples),total-offset)] = samples[:total-offset]
+            leading=round(.1*SAMPLE_RATE);source_index=round(source_start*SAMPLE_RATE)
+            offset=max(0,leading-source_index);sample_first=max(0,source_index-leading)
+            count=max(0,min(len(samples)-sample_first,total-offset))
+            recording_timing = {'source_duration':recording_duration, 'tempo_factor':tempo, 'leading_seconds':leading/SAMPLE_RATE}
+            narration[offset:offset+count] = samples[sample_first:sample_first+count]
             for shot in story['shots']:
                 spans.append({**shot,'spoken_start':shot['start']+.1,'spoken_end':max(shot['start']+.11,shot['end']-.1),'tempo_factor':tempo})
         else:
@@ -305,14 +318,19 @@ def prepare_audio(story, story_dir, output):
             for cue in cues:
                 cue['start'] = recording_timing['leading_seconds']+cue['start']/recording_timing['tempo_factor']
                 cue['end'] = recording_timing['leading_seconds']+cue['end']/recording_timing['tempo_factor']
-        cues = [{**cue,'start':max(0,cue['start']),'end':min(duration,cue['end'])} for cue in cues if cue['start'] < duration and cue['end'] > 0]
+        cues = [{**cue,'start':max(0,cue['start']-source_start),'end':min(duration,cue['end']-source_start)} for cue in cues if cue['start'] < source_start+duration and cue['end'] > source_start]
     else:
         cues = _estimated_cues(spans)
-    # Close-up mechanisms occupy the lower picture. Put their captions on the
-    # quiet upper wall; exterior/sensor shots keep the reference's lower zone.
+    # Caption placement follows the focal subject, including across a cut.
+    from direction import caption_y
+    boundaries=sorted({shot['start']+beat['at'] for shot in story['shots'] for beat in shot.get('direction',[])})
+    split_cues=[]
     for cue in cues:
-        shot=next((s for s in story['shots'] if s['start'] <= cue['start'] < s['end']),story['shots'][-1])
-        cue['caption_y']=650 if shot.get('camera') in {'hydraulics','cutaway'} else 1500
+        cuts=[cue['start'],*[time for time in boundaries if cue['start']<time<cue['end']],cue['end']]
+        for start,end in zip(cuts,cuts[1:]):
+            shot=next((s for s in story['shots'] if s['start'] <= start < s['end']),story['shots'][-1])
+            split_cues.append({**cue,'start':start,'end':end,'caption_y':caption_y(shot,start)})
+    cues=split_cues
     srt,ass = write_captions(cues,output,story.get('title',story.get('id','Explainer')))
     soundtrack,peak,gain = _soundtrack(narration,spans,duration)
     soundtrack_path = output/'soundtrack.wav'
@@ -323,7 +341,7 @@ def prepare_audio(story, story_dir, output):
         'channels':1,'voice_source':{'espeak':'offline eSpeak synthetic draft voice','file':'user-provided narration recording','none':'no narration'}[mode],
         'voice':voice if mode=='espeak' else None,'rate_wpm':rate if mode=='espeak' else None,
         'caption_timing':('supplied SRT cues retimed with recording and clipped to scope' if recording_timing else 'supplied SRT cues clipped to scope') if supplied_cues else 'estimated phrase timings within speech spans; not word-level forced alignment',
-        'recording_timing':recording_timing, 'source_duration_seconds':source_duration,
+        'recording_timing':recording_timing, 'source_duration_seconds':source_duration,'source_start_seconds':source_start,
         'caption_count':len(cues),'shots':[{'id':s['id'],'spoken_start':s['spoken_start'],'spoken_end':s['spoken_end'],'tempo_factor':s['tempo_factor']} for s in spans],
         'sfx_source':'original deterministic procedural Foley; no external audio assets',
         'pre_normalization_peak':round(peak,6),'normalization_gain':round(gain,6),

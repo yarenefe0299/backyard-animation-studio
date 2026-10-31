@@ -4,6 +4,8 @@ import bpy
 from mathutils import Vector
 from geometry import empty, box, cylinder
 from mechanism import pose,point_on_polyline
+from direction import DETAIL_VIEWS
+from shot_director import build_anchors,direct
 
 
 def ease(t):
@@ -92,6 +94,10 @@ def prepare_groups(env,mech,car,props,mats):
     return {'walls':walls,'wallroot':wallroot,'rebar':rebar,'platform':platform,
             'hardware':hardware+list(movingfamily),'drainage':[o for o in drainage if not o.name.startswith('Sump discharge')],'waterflow':[o for o in discharge if o.type=='CURVE'],'water_tracers':[o for o in discharge if o.type=='MESH'],
             'solid_discharge':[o for o in drainage if o.name.startswith('Sump discharge')],
+            'barrel_shells':[o for o in hardware if o.name.startswith('Fixed pressure barrel')],
+            'hydraulic_overlay':[o for o in hardware if o.name.startswith(('Transparent pressure','Oil flow','Blue cylinder'))],
+            'inspection_context':[o for o in hardware if o.name.startswith(('Fixed guide mast','Wall rail bracket','Steel return line'))],
+            'sump_context':[o for o in props['drainage_parts'] if o not in props['check_valve_parts']],
             'car':list(carfamily),'shell':list(set(shell)),
             'shell_alpha':[v[1] for v in shellmats.values()]}
 
@@ -104,11 +110,11 @@ def pose_garage(shot,t,seconds,state):
              'solid_discharge':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'sensors':False,'beam':False,'warning':False,'rain':False,'water':False,'rebar':False,'waterflow':False,'water_tracers':False,'drainage_parts':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'drainage_fill':a=='drainage'}
     wall_scale=1.
     if a=='arrive':
-        local=t*7.0  # Normalize the choreography to this shot's declared length.
-        travel=ease(local/2.8);car_y=-7*(1-travel)
-        reveal=ease((local-3.35)/.95)
-        z=-2.1*ease((local-4.25)/1.7)
-        cover=ease((local-6.05)/.8)
+        local=t*6.0  # Park, reveal, descend and close within the declared beat.
+        travel=ease(local/1.9);car_y=-7*(1-travel)
+        reveal=ease((local-2.05)/.65)
+        z=-2.1*ease((local-2.75)/1.9)
+        cover=ease((local-4.9)/.8)
         c=ease(local/3.4)
         exterior=(mix((9,-18,7),(8,-14,6),c),mix((0,-3,.8),(0,0,.7),c),13.8-4.3*c)
         camera_pose(camera,mix(exterior[0],(7,-16,5.5),reveal),mix(exterior[1],(0,.15,-.7),reveal),exterior[2]+(11.25-exterior[2])*reveal)
@@ -132,7 +138,7 @@ def pose_garage(shot,t,seconds,state):
         elif a=='load':
             visible.update(hardware=False,drainage=False,guide=True)
         elif a=='hydraulics':
-            z=-2.1*(1-ease((t-.2)/.75));visible['drainage']=False
+            z=-2.1*(1-ease((t-.43)/.52));visible['drainage']=False
         elif a=='rain':
             z=-2.1;water=.03+1.55*u;visible.update(rain=True,water=True)
         elif a=='drainage':
@@ -155,6 +161,7 @@ def pose_garage(shot,t,seconds,state):
             elif t<.50:z=-2.1*(1-ease((t-.18)/.32))
             elif t<.83:z=-2.1*ease((t-.5)/.33)
             else:z=-2.1;cover=ease((t-.83)/.17)
+            reveal=1-ease((t-.87)/.13)
     pose(mech,z,round(seconds*state['fps'])+1)
     car.location=(0,car_y,0);car.rotation_euler.z=math.pi
     for pivot in p['wheel_pivots']:
@@ -178,6 +185,17 @@ def pose_garage(shot,t,seconds,state):
     for alpha in g['shell_alpha']:
         alpha.default_value=reveal
     visible['cover_parts']=a in ('arrive','conceal','payoff')
+    visible['barrel_shells']=visible['hardware']
+    visible['hydraulic_overlay']=visible['hardware'] and a=='hydraulics'
+    visible['inspection_context']=visible['hardware']
+    visible['sump_context']=visible['drainage_parts']
+    if shot.get('direction'):
+        view=direct(shot,seconds,state)
+        if view in DETAIL_VIEWS:
+            visible.update(car=False,platform=False,drainage_fill=True,inspection_context=False)
+        if view=='cylinder':visible['barrel_shells']=False
+        if view=='valve':visible['sump_context']=False
+        if view in {'sensor','beam'}:visible['car']=False
     return visible
 
 
@@ -190,8 +208,11 @@ def bake(story,scope,scene,camera,mech,env=None,car=None,props=None,mats=None):
     if car:
         env['exterior_only'].hide_render=False;env['exterior_only'].hide_viewport=False
         g=prepare_groups(env,mech,car,props,mats)
-        state={'camera':camera,'mechanism':mech,'car':car,'props':props,'groups':g,'fps':story['fps']}
-    else:g={}
+        state={'camera':camera,'mechanism':mech,'car':car,'props':props,'groups':g,'fps':story['fps'],
+               'anchors':build_anchors(mech,car,props)}
+    else:
+        g={}
+        state={'camera':camera,'mechanism':mech,'car':None,'props':{},'anchors':build_anchors(mech,None,{})}
     for shot in shots:
         scene.timeline_markers.new(shot['id']+' / '+shot['action'],frame=shot['start_frame'])
         for frame in range(shot['start_frame'],shot['end_frame']+1):
@@ -199,13 +220,18 @@ def bake(story,scope,scene,camera,mech,env=None,car=None,props=None,mats=None):
             if car:
                 vis=pose_garage(shot,t,seconds,state)
                 keyed_visible(g['shell'],g['shell_alpha'][0].default_value < .999,frame,cache)
+                # Resolve overlapping groups before keying diagnostic visibility.
+                visibility={}
                 for key,visible in vis.items():
                     objects=g.get(key,props.get(key,[]))
                     if not isinstance(objects,list):objects=[objects]
-                    keyed_visible(objects,visible,frame,cache)
+                    for ob in objects:visibility[ob]=visible
+                for ob,visible in visibility.items():keyed_visible([ob],visible,frame,cache)
                 animated=[mech['lift'],*mech['mid_stages'],*mech['rods'],car,
                           *props['wheel_pivots'],props['cover_left'],props['cover_right'],
-                          props['water'],props['crate'],props['check_valve'],g['wallroot']]
+                          props['water'],props['crate'],props['check_valve'],g['wallroot'],*props['drainage_fill']]
+                fill=props['drainage_fill'][0].data
+                fill.keyframe_insert(data_path='energy',frame=frame);fill.keyframe_insert(data_path='size',frame=frame)
                 if vis['clods']:animated+=props['clods']
                 if vis['rain']:animated+=props['rain']
                 if vis['excavation_fill']:animated+=props['excavation_fill']
@@ -220,6 +246,7 @@ def bake(story,scope,scene,camera,mech,env=None,car=None,props=None,mats=None):
                 position=(6.8,-11,2.4) if wide else (3.1,-8,-.2)
                 target=(-.1,-.4,-1.7) if wide else (-.1,-.4,-2.2)
                 camera_pose(camera,mix(position,(position[0]-.35,position[1]+.15,position[2]),ease(t)),target,8.6 if wide else 5.9)
+                if shot.get('direction'):direct(shot,seconds,state)
                 animated=[mech['lift'],*mech['mid_stages'],*mech['rods']]
             for ob in animated:
                 for path in ('location','rotation_euler','scale'):ob.keyframe_insert(data_path=path,frame=frame)

@@ -13,6 +13,7 @@ import sys
 HERE=Path(__file__).resolve().parent
 REPO=HERE.parent
 PRESETS={'draft':(270,480,16),'review':(540,960,64),'final':(1080,1920,128)}
+SCOPES=('opening','mechanism','full')
 
 
 def story_path(value):
@@ -26,11 +27,21 @@ def effective_story(directory,scope):
     from story import load_story
     story=load_story(story_path(directory))
     story['source_duration_s']=story['duration_s']
+    story['source_start_s']=0.
     story['scope']=scope
     if scope=='opening':
         story['shots']=story['shots'][:1]
         story['frames']=story['shots'][0]['end_frame']
         story['duration_s']=story['frames']/story['fps']
+    elif scope=='mechanism':
+        action='hydraulics' if story['template']=='garage' else 'extend'
+        selected=next((shot for shot in story['shots'] if shot['action']==action),None)
+        if selected is None:raise ValueError(f'Mechanism review requires a {action!r} action in the script')
+        shot=copy.deepcopy(selected)
+        story['source_start_s']=shot['start']
+        shot.update(start=0.,end=shot['duration_s'],start_frame=1,end_frame=shot['frames'])
+        story['shots']=[shot];story['frames']=shot['frames'];story['duration_s']=shot['duration_s']
+    elif scope!='full':raise ValueError(f'Unsupported render scope {scope!r}')
     return story
 
 
@@ -127,7 +138,7 @@ def main():
     for name in ['plan','audio','run']:
         p=commands.add_parser(name);p.add_argument('--story',type=Path,default=REPO/'stories/hidden-garage')
         p.add_argument('--output',type=Path,default=HERE/'output/story');p.add_argument('--quality',choices=PRESETS,default='draft')
-        p.add_argument('--scope',choices=['opening','full'],default='opening')
+        p.add_argument('--scope',choices=SCOPES,default='opening')
         if name=='plan':p.add_argument('--github-output',type=Path)
     p=commands.add_parser('assemble');p.add_argument('--output',type=Path,default=HERE/'output/story');p.add_argument('--no-denoise',action='store_true')
     args=parser.parse_args()

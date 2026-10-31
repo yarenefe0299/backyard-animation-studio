@@ -1,11 +1,17 @@
 name: Render engineering story
 
 on:
-  pull_request:
-    paths:
-      - 'garage3d/**'
-      - 'stories/**'
-      - '.github/workflows/render-engineering-story.yml'
+  workflow_call:
+    inputs:
+      story_folder:
+        type: string
+        default: stories/hidden-garage
+      scope:
+        type: string
+        default: mechanism
+      quality:
+        type: string
+        default: draft
   workflow_dispatch:
     inputs:
       story_folder:
@@ -14,10 +20,10 @@ on:
         default: stories/hidden-garage
         required: true
       scope:
-        description: 'Opening for story review, or the complete scripted timeline'
+        description: 'Opening, focused mechanism review, or the complete timeline'
         type: choice
-        options: [opening, full]
-        default: opening
+        options: [mechanism, opening, full]
+        default: mechanism
       quality:
         description: 'Render quality; final uses substantially more CPU time'
         type: choice
@@ -28,12 +34,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: engineering-story-${{ github.ref }}
+  group: engineering-story-${{ github.ref }}-${{ inputs.scope || 'mechanism' }}
   cancel-in-progress: true
 
 env:
   STORY_FOLDER: ${{ inputs.story_folder || 'stories/hidden-garage' }}
-  SCOPE: ${{ inputs.scope || 'full' }}
+  SCOPE: ${{ inputs.scope || 'mechanism' }}
   QUALITY: ${{ inputs.quality || 'draft' }}
   OMP_NUM_THREADS: '2'
 
@@ -58,7 +64,7 @@ jobs:
           espeak-ng --version
       - name: Check story validation, audio and encoder failure handling
         run: |
-          for pattern in test_story.py test_audio.py test_encode.py test_pipeline.py; do
+          for pattern in test_story.py test_direction.py test_audio.py test_encode.py test_pipeline.py; do
             python3 -m unittest discover -s garage3d -p "$pattern" -v
           done
       - name: Generate narration, outlined captions and sound effects
@@ -81,7 +87,7 @@ jobs:
       - name: Preserve the self-contained master for render workers
         uses: actions/upload-artifact@v4
         with:
-          name: engineering-master-${{ github.run_id }}
+          name: engineering-master-${{ github.run_id }}-${{ env.SCOPE }}
           path: |
             garage3d/output/story/master.blend
             garage3d/output/story/plan.json
@@ -93,7 +99,7 @@ jobs:
       - name: Preserve audio, captions, plan and review stills
         uses: actions/upload-artifact@v4
         with:
-          name: engineering-production-${{ github.run_id }}
+          name: engineering-production-${{ github.run_id }}-${{ env.SCOPE }}
           path: |
             garage3d/output/story/*.wav
             garage3d/output/story/*.ass
@@ -137,7 +143,7 @@ jobs:
       - name: Download this run's validated master
         uses: actions/download-artifact@v4
         with:
-          name: engineering-master-${{ github.run_id }}
+          name: engineering-master-${{ github.run_id }}-${{ env.SCOPE }}
           path: garage3d/output/story
       - name: Render this exact frame range
         env:
@@ -170,7 +176,7 @@ jobs:
       - name: Preserve the completed frame chunk
         uses: actions/upload-artifact@v4
         with:
-          name: engineering-frames-${{ github.run_id }}-${{ matrix.id }}
+          name: engineering-frames-${{ github.run_id }}-${{ env.SCOPE }}-${{ matrix.id }}
           path: garage3d/output/story/frames/*.png
           if-no-files-found: error
           overwrite: true
@@ -179,7 +185,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: engineering-partial-${{ github.run_id }}-${{ matrix.id }}
+          name: engineering-partial-${{ github.run_id }}-${{ env.SCOPE }}-${{ matrix.id }}
           path: garage3d/output/story/frames/*.png
           if-no-files-found: warn
           overwrite: true
@@ -198,12 +204,12 @@ jobs:
       - name: Download the plan, audio, captions and review stills
         uses: actions/download-artifact@v4
         with:
-          name: engineering-production-${{ github.run_id }}
+          name: engineering-production-${{ github.run_id }}-${{ env.SCOPE }}
           path: garage3d/output/story
       - name: Download all completed frame chunks
         uses: actions/download-artifact@v4
         with:
-          pattern: engineering-frames-${{ github.run_id }}-*
+          pattern: engineering-frames-${{ github.run_id }}-${{ env.SCOPE }}-*
           path: garage3d/output/story/frames
           merge-multiple: true
       - name: Encode captions and sound, then verify the actual MP4
