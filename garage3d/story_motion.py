@@ -101,7 +101,7 @@ def pose_garage(shot,t,seconds,state):
     a=shot['action'];u=ease(t);local=seconds-shot['start'];z=0.;car_y=0.;reveal=1.;cover=0.;water=.02
     visible={'walls':True,'hardware':True,'platform':True,'car':True,'drainage':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},
              'guide':False,'clods':False,'excavation_fill':False,'crate_parts':False,
-             'solid_discharge':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'sensors':False,'beam':False,'warning':False,'rain':False,'water':False,'rebar':False,'waterflow':False,'water_tracers':False,'drainage_parts':a in {'arrive','drainage','pinch','sensors','conceal','payoff'}}
+             'solid_discharge':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'sensors':False,'beam':False,'warning':False,'rain':False,'water':False,'rebar':False,'waterflow':False,'water_tracers':False,'drainage_parts':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'drainage_fill':a=='drainage'}
     wall_scale=1.
     if a=='arrive':
         local=t*7.0  # Normalize the choreography to this shot's declared length.
@@ -116,7 +116,7 @@ def pose_garage(shot,t,seconds,state):
         presets={'exterior':((7.4,-13,6),(0,.25,.7),8.8),
                  'cutaway':((7,-16,5.5),(0,.15,-.7),11.25),
                  'hydraulics':((2.8,-8,.0),(-.1,-.1,-1.8),6.5),
-                 'drainage':((3.4,-7,-1.1),(.25,.6,-2.8),4.9),
+                 'drainage':((-.6,-5,-2.8),(.8,1.9,-3.25),2.0),
                  'sensor':((4.2,-7,3.0),(.4,-1.8,.0),5.9)}
         pos,target,scale=presets.get(shot['camera'],presets['cutaway'])
         camera_pose(camera,mix(pos,(pos[0]-.25,pos[1]+.15,pos[2]-.08),u),target,scale-.15*u)
@@ -136,7 +136,12 @@ def pose_garage(shot,t,seconds,state):
         elif a=='rain':
             z=-2.1;water=.03+1.55*u;visible.update(rain=True,water=True)
         elif a=='drainage':
-            z=-2.1;water=1.58*(1-u)+.025;visible.update(water=True,waterflow=True,water_tracers=.12 <= t < .90,solid_discharge=False)
+            # Empty the basin in the first half, then hold the clear close-up
+            # while the narration explains the pump and closing check valve.
+            z=-2.1;water=1.58*(1-ease(t/.50))+.025
+            # Isolate the drainage diagnostic in the persistent chamber: nearby
+            # hydraulic guides otherwise conceal the small pump and valve.
+            visible.update(water=True,waterflow=True,water_tracers=.12 <= t < .90,solid_discharge=False,hardware=False)
         elif a in ('pinch','sensors'):
             stop=.24 if a=='sensors' else .58
             z=-.40+.27*ease(min(t/stop,1))

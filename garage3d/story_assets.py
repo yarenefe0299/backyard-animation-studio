@@ -445,6 +445,15 @@ def augment_garage(environment, mechanism, car, materials):
     wheels=_wheel_pivots(car)
     drainage,drain_pulses=_drainage(materials)
     drainage_parts,check_valve,check_valve_parts=_sump_hardware(materials)
+    # A broad diagnostic fill reaches under the parked deck. Its visibility is
+    # keyed only for the drainage close-up, preserving the daylight master look.
+    fill_data=bpy.data.lights.new('Drainage / soft inspection fill','AREA')
+    fill_data.energy=110;fill_data.shape='DISK';fill_data.size=2
+    fill_light=bpy.data.objects.new('Drainage / soft inspection fill',fill_data)
+    bpy.context.collection.objects.link(fill_light)
+    fill_light.location=(0,-2.9,-2.65)
+    fill_light.rotation_euler=(Vector((.8,2,-3.3))-fill_light.location).to_track_quat('-Z','Y').to_euler()
+    fill_light.hide_render=True
     return {
         'cover_left':covers[0],'cover_right':covers[1],
         'cover_parts':_children(covers[0])+_children(covers[1]),
@@ -455,4 +464,5 @@ def augment_garage(environment, mechanism, car, materials):
         'road':road,'wheel_pivots':wheels,
         'drainage_overlay':drainage,'drain_pulses':drain_pulses,
         'drainage_parts':drainage_parts,'check_valve':check_valve,'check_valve_parts':check_valve_parts,
+        'drainage_fill':[fill_light],
     }

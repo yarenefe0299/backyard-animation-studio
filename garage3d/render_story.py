@@ -52,8 +52,17 @@ def main():
     bpy.ops.wm.save_as_mainfile(filepath=str(output/'master.blend'));report['completed'].append('master.blend');save_report()
     if args.mode in ['stills','all']:
         if plan['template']=='garage' and args.scope=='opening':times=[25,100,result['frames']]
+        elif plan['template']=='garage':
+            # Review distinct visual requirements, rather than three adjacent
+            # construction beats that omit the installed mechanism entirely.
+            choices=[('arrive',.40),('reinforce',.90),('hydraulics',.50)]
+            times=[]
+            for action,fraction in choices:
+                shot=next((s for s in result['shots'] if s['action']==action),result['shots'][len(times)%len(result['shots'])])
+                times.append(shot['start_frame']+round((shot['frames']-1)*fraction))
         else:times=[s['start_frame']+(s['frames']-1)//2 for s in result['shots'][:3]]
         while len(times)<3:times.append(result['frames'])
+        report['preview_frames']=times
         for i,frame in enumerate(times):
             scene.frame_set(frame);scene.render.filepath=str(output/f'preview_{i+1:02d}.png')
             bpy.ops.render.render(write_still=True);report['completed'].append(f'preview_{i+1:02d}.png');save_report()

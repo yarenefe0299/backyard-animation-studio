@@ -1,17 +1,17 @@
 > **Current story pipeline:** see [STORIES.md](STORIES.md) for the arrival → parking → underground reveal → descent opening, the full 51-second story, and reusable story folders. Use **Render engineering story** for new videos. The four-second style test below remains a manual historical comparison.
 
-# Hidden driveway: Blender style test
+# Historical hidden-driveway style test
 
-This independent Python/Blender pipeline is the first visual review deliverable for **How to Hide a Car Under Your Driveway**. It keeps the existing Remotion flying-armor episode and its workflow intact. It uses modeled geometry, procedural materials, Blender Cycles, and FFmpeg; no paid API, subscription, downloaded asset, or local installation on your phone/Mac is needed for the GitHub workflow.
+This page preserves the original visual review deliverable for **How to Hide a Car Under Your Driveway** and its independent Python/Blender commands. It keeps the existing Remotion flying-armor episode and its workflow intact. It uses modeled geometry, procedural materials, Blender Cycles, and FFmpeg; no paid API, subscription, downloaded asset, or local installation on your phone/Mac is needed for the GitHub workflow.
 
-The deliverable is three portrait preview images and a **four-second, 120-frame, 30 fps animation** of the silver car riding the lift while the camera moves. It is silent. Narration, captions, sound effects, and the 12-scene episode are intentionally behind the visual review gate.
+The original deliverable is three portrait preview images and a silent **four-second, 120-frame, 30 fps animation** of the silver car riding the lift while the camera moves. The later storytelling request authorized the separate full narrative draft, including narration, captions and sound effects. Use [STORIES.md](STORIES.md) for that current pipeline; final-resolution production still follows visual review.
 
-## Render on GitHub from an iPhone or browser
+## Run the historical comparison from a browser
 
-1. Open the pull request for the `garage3d/style-test` branch, then open **Checks → Render garage style test → Details**. A change under `garage3d/` triggers the draft render automatically for the pull request. Repository Actions must be enabled, and GitHub may require the repository owner to approve a first contributor's workflow run.
+1. This historical workflow is **manual-only**. After it exists on the default branch, open **Actions → Render garage style test → Run workflow**, select the branch and quality, and run it. Repository Actions must be enabled. For the current story draft and automatic pull-request render, follow [STORIES.md](STORIES.md).
 2. Wait for the run to finish. A green run means the render/encoding checks passed; visual approval is still yours. A failed or timed-out run is not a completed video.
 3. Open that run's **Artifacts**. Download `garage-style-video-…-draft` for `style-test.mp4`, and `garage-style-review-…-draft` for the three PNGs, `.blend` master scene, and reports. Artifacts are ZIP downloads; iPhone Files can open them. Sign into GitHub to download them. They expire after 14 days.
-4. For another draft run, use **Re-run all jobs** on the run. After this workflow exists on the default branch, open **Actions → Render garage style test → Run workflow**, choose the branch and quality, then run it. GitHub's manual-run button may not appear while the workflow exists only on this unmerged branch. Do not merge solely to obtain that button; the pull-request run provides the initial review.
+4. Download the artifacts within 14 days to keep them. Start another comparison through **Run workflow** when needed. Changes to `garage3d/` no longer trigger this historical workflow automatically.
 
 The workflow installs Blender and FFmpeg on a remote Ubuntu 24.04 runner. It does not invoke the existing Node/Remotion workflow. GitHub Actions availability and usage limits still apply. Final quality can be slow on the runner's CPU; use draft for motion and review for image detail. The job stops after 180 minutes; available images and diagnostics upload even if animation fails, and a completed-video artifact is only uploaded after encoding verifies every frame.
 
@@ -33,7 +33,7 @@ The workflow installs Blender and FFmpeg on a remote Ubuntu 24.04 runner. It doe
 | `review` | 540 × 960 | 64 | Materials, shadows and detail review |
 | `final` | 1080 × 1920 | 128 | Full-resolution style-test export after review |
 
-The workflow always renders stills at **review** quality (or **final** when selected), while the animation uses the selected quality. This gives useful material-detail images before merging the PR, alongside a small draft motion test. `stills_report.json` preserves the still-render settings; `scene_report.json` records the animation invocation. Direct CLI runs apply their chosen quality to every requested render.
+The historical workflow always renders stills at **review** quality (or **final** when selected), while the animation uses the selected quality. This provides material-detail images alongside a small draft motion test. `stills_report.json` preserves the still-render settings; `scene_report.json` records the animation invocation. Direct CLI runs apply their chosen quality to every requested render.
 
 All presets render the same geometry and animation at 30 fps. Resolution/sample reduction controls time without replacing the scene with placeholder assets. This pipeline does not claim that small draft frames prove final production quality.
 
@@ -74,15 +74,15 @@ python3 -m unittest discover -s garage3d -p 'test_encode.py' -v
 
 `test_scene.py` opens the actual saved `.blend` file and evaluates all 120 animation poses. It measures tire contact against the modeled platform pavers, checks overlap between both telescopic stages and their barrels, verifies a steady descent and moving camera, and checks that the car fits below grade at the end. It also measures animated oil tracer positions against the real curved pressure-pipe centerlines at five poses across the shot. The workflow runs this integration check after rendering the stills and before spending time on the animation.
 
-## Reference and visual review gate
+## Original references and current visual review
 
-The source files inspected for this work are `reference_12_part_storyboard.jpg`, `hidden_garage_3d_scene_manifest.json`, and `Script.txt`. The requested filename `hidden_garage_production_blueprint.md` is absent from the repository version used for this branch; `Script.txt` contains the detailed production blueprint and shot directions. The actual reference movie named in the manifest is not available here, so camera timing and moving-image fidelity cannot be compared directly with that movie.
+The source files inspected for the original style test were `reference_12_part_storyboard.jpg`, `hidden_garage_3d_scene_manifest.json`, and `Script.txt`. The requested filename `hidden_garage_production_blueprint.md` was absent from that repository version; `Script.txt` contains the detailed production blueprint and shot directions. The actual reference movie named in the manifest was not available, so camera timing and moving-image fidelity could not be compared directly with that movie.
 
 The provided storyboard establishes warm cream/oak/gray/earth colors, softly lit beveled geometry, pale blue mechanical explanations, visible soil and masonry, and stable three-quarter cutaways. The preview applies that visual grammar to an original car/lift setting. The S02/S06 labels above describe comparison views for the style test, not completed episode shots.
 
-Before approving the 51-second episode, inspect the three images at full size and play the MP4. Check car identity and modeled surfaces, bevels/joints/material grain, soft contact shadows, glass and metal reflections, warm reference palette, portrait framing, visible soil layers/masonry, connected rods/cylinders, stable car contact on the platform, smooth easing/camera motion, and blue fluid remaining inside the pipes. Record specific corrections if the style differs. A passing script or green workflow is not visual sign-off.
+Before approving final production, inspect the current story's review images at full size and play its narrative MP4 using [STORIES.md](STORIES.md). Check car identity and modeled surfaces, bevels/joints/material grain, soft contact shadows, glass and metal reflections, warm reference palette, portrait framing, visible soil layers/masonry, connected rods/cylinders, stable car contact on the platform, smooth easing/camera motion, and blue fluid remaining inside the pipes. Record specific corrections if the style differs. A passing script or green workflow is not visual sign-off.
 
-Only after explicit visual review should production expand to the manifest's 12 scenes, conversational original narration, bold outlined timed captions, sound effects, and 1080 × 1920 final assembly. This is a fictional engineering visualization; the modeled mechanism is for animation and is not a construction design.
+The original four-second review gate preceded the later request to build the full storytelling draft. The current pipeline now covers the 12 narrative beats, original narration, outlined captions and sound effects. Visual approval and 1080 × 1920 final rendering remain pending; selecting the final preset alone does not complete that render. This is a fictional engineering visualization; the modeled mechanism is for animation and is not a construction design.
 
 ## Source layout
 
@@ -97,4 +97,4 @@ Only after explicit visual review should production expand to the manifest's 12 
 - `test_encode.py` checks sequence rejection and the video encode/inspect path.
 - `../.github/workflows/render-garage-style-test.yml` installs tools and performs the remote render/upload.
 
-Generated renders and `.blend` files belong in ignored output directories or Actions artifacts, not in the source history. See [VALIDATION.md](VALIDATION.md) and the pull request's validation notes for what was actually executed; this README specifies how to run the pipeline and does not assert that any render has already completed.
+Generated renders and `.blend` files belong in ignored output directories or Actions artifacts, not in the source history. See [VALIDATION_STYLE_TEST.md](VALIDATION_STYLE_TEST.md) for the historical comparison and [VALIDATION.md](VALIDATION.md) for current story results. This page documents the historical commands; completed renders are recorded in those validation reports.

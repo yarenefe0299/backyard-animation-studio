@@ -13,6 +13,7 @@ import sys
 import bpy
 from mathutils import Vector
 from mathutils.geometry import interpolate_bezier
+from bpy_extras.object_utils import world_to_camera_view
 
 
 def bounds(obj):
@@ -217,12 +218,20 @@ def drainage_hardware_checks(scene,shots):
     assert disc.parent==flap, 'The visible valve disc must be attached to its animated hinge'
     all_parts=pump_parts+geometry(body)
     angles=[]
+    screen_positions=[]
     for frame in shot_frames(shot):
         at(scene,frame)
         assert all(not obj.hide_render for obj in all_parts), f'Drainage hardware must be visible during S08 at frame {frame}'
         axis=(body.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
         normal=(disc.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
         angles.append(math.acos(max(-1,min(1,axis.dot(normal)))))
+        for point in (pump.matrix_world@Vector((0,0,.26)),body.matrix_world.translation):
+            projected=world_to_camera_view(scene,scene.camera,point)
+            assert .05<projected.x<.95 and .22<projected.y<.85 and projected.z>0, 'Drainage close-up must frame the pump and valve above lower captions'
+            screen_positions.append([projected.x,projected.y])
+    at(scene,(shot['start_frame']+shot['end_frame'])//2)
+    water=next(obj for obj in scene.objects if obj.get('story_role')=='rainwater')
+    assert water.scale.z<.08, 'Water must recede before the pump/valve explanation finishes'
     assert angles[0]<.05 and angles[1]>.8 and angles[-1]<.05, f'Check valve must open with flow and close afterward: {angles}'
     rain=next((value for value in shots if value['action']=='rain'),None)
     if rain:
@@ -232,7 +241,8 @@ def drainage_hardware_checks(scene,shots):
     error=centreline_distance(body.matrix_world.translation,curve_segments(pipes))
     assert error<.004, f'Check-valve body is disconnected from the actual discharge route: {error:.5f}m'
     return {'pump_mesh_parts':len([obj for obj in pump_parts if obj.type=='MESH']),
-            'valve_disc_angles_rad':angles,'valve_pipe_alignment_error_m':error}
+            'valve_disc_angles_rad':angles,'valve_pipe_alignment_error_m':error,
+            'pump_valve_screen_positions':screen_positions}
 
 
 def garage_checks(scene, shots):

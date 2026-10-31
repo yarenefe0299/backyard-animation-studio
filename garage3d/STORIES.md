@@ -92,6 +92,8 @@ The recording and optional SRT belong inside the story folder. Author the record
 
 The workflow builds one persistent master per run, checks the saved scene, prepares audio and captions, and distributes its exact frame ranges to render workers. Each worker checks that its own PNG sequence is complete. Assembly rejects missing, extra or inconsistent frames before encoding, then checks the actual MP4. A failed or timed-out render does not produce a completed-video artifact.
 
+For a full garage story, the three sharper review stills select the arrival exterior, installed underground walls, and operating hydraulics when those actions are present. The contact sheet samples the complete chronological story. Inspect the drainage and safety close-ups there and in the moving video as well.
+
 | Quality | Animation resolution | Intended use |
 | --- | --- | --- |
 | `draft` | 270 × 480 | Story structure, timing, movement and audio review |
