@@ -1,3 +1,5 @@
+> **Current story pipeline:** see [STORIES.md](STORIES.md) for the arrival → parking → underground reveal → descent opening, the full 51-second story, and reusable story folders. Use **Render engineering story** for new videos. The four-second style test below remains a manual historical comparison.
+
 # Hidden driveway: Blender style test
 
 This independent Python/Blender pipeline is the first visual review deliverable for **How to Hide a Car Under Your Driveway**. It keeps the existing Remotion flying-armor episode and its workflow intact. It uses modeled geometry, procedural materials, Blender Cycles, and FFmpeg; no paid API, subscription, downloaded asset, or local installation on your phone/Mac is needed for the GitHub workflow.

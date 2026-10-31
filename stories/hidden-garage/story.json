@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "hidden-garage",
+  "title": "How to Hide a Car Under Your Driveway",
+  "template": "garage",
+  "fps": 30,
+  "script": "script.md",
+  "audio": {"mode": "espeak", "voice": "en-us", "rate": 175}
+}

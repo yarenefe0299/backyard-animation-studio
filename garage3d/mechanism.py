@@ -27,7 +27,7 @@ def build_mechanism(m):
                     (x1-x0,y1-y0,.055),paving[(row+column)%len(paving)],lift,.008)
     mids=[]
     rods=[]
-    for x in [-1.25,1.25]:
+    for x in [-1.06,1.06]:
         y=.35
         box('Anchored cylinder baseplate', (x,y,-3.60), (.45,.45,.08),m['black'],bevel=.016)
         for dx in [-.15,.15]:
@@ -47,7 +47,7 @@ def build_mechanism(m):
         rods.append(rod)
     for x in [-1.49,1.49]:
         for y in [-2.27,2.27]:
-            box('Fixed guide mast', (x,y,-1.83),(.06,.12,3.5),m['steel'],bevel=.009)
+            box('Fixed guide mast', (x,y,-1.855),(.06,.12,3.45),m['steel'],bevel=.009)
             box('Carriage guide shoe',(x-math.copysign(.02,x),y,-.37),(.14,.24,.21),m['blue'],lift,.025)
             for z in [-3.3,-2.2,-1.1,-.15]:
                 box('Wall rail bracket',(x,y,z),(.26,.25,.08),m['black'],bevel=.01)
@@ -64,7 +64,7 @@ def build_mechanism(m):
     cylinder('Ivory pressure dial',(-.52,-2.313,-2.77),(-.52,-2.318,-2.77),.071,m['concrete'])
     pipe('Gauge needle',[(-.52,-2.321,-2.77),(-.55,-2.321,-2.73)],.004,m['black'])
     paths=[]
-    for x in [-1.25,1.25]:
+    for x in [-1.06,1.06]:
         points=[(-.40,-2.10,-2.97),(-.14,-2.10,-3.12),(x,-1.85,-3.12),(x,-.1,-3.12),(x,.22,-3.30),(x,.35,-3.30)]
         line=pipe('Transparent pressure line',points,.043,m['ghost'])
         bpy.context.view_layer.update()
@@ -88,7 +88,7 @@ def build_mechanism(m):
             ob.data.materials.append(m['fluid'])
             pulses.append((ob,path,j/14))
     overlays=[]
-    for x in [-1.25,1.25]:
+    for x in [-1.06,1.06]:
         overlays.append(cylinder('Blue cylinder x-ray envelope',(x,.35,-3.55),(x,.35,-2.32),.178,m['ghost']))
     box('Sump drain surround',(.7,1.8,-3.63),(.7,.5,.035),m['black'],bevel=.04)
     for i in range(11):
