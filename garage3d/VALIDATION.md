@@ -20,7 +20,13 @@ The actual remote encoder/FFprobe report, retrieved from the successful assembly
 
 This establishes an actual complete remote MP4. The final artifact ZIP could not be materialized through the available connector download path in the development workspace, so it has not been manually watched end to end here. Representative frames rendered locally from the same scene were inspected. GitHub artifact downloads remain available to a signed-in repository user.
 
-The subsequent drainage-framing correction and semantic review-still selection require their own render result; the source-pinned run above is not evidence that later revisions have rendered.
+## Revised framing checkpoint
+
+Source `76f8e5da55cb0cbf67752dc302e392404652649d` improves the drainage close-up: it isolates the pump and valve in the same chamber, adds a soft inspection fill, and lets water recede before the explanation finishes. Full-garage review stills now select the exterior, reinforced chamber and hydraulics. The historical README's workflow instructions were corrected.
+
+The revised full master built locally with 2,133 objects and passed all 36 sampled poses, including pump/valve screen placement above the lower captions and the water-recession check. Open/closed-valve frames were rendered, denoised and inspected; a captioned drainage frame was also inspected for obstruction.
+
+[Run 41215412467](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41215412467) passed its remote prepare job, including unit checks, narration/captions/sound preparation, master build, saved-scene checks and all three sharper still renders. The [current review artifact](https://github.com/yarenefe0299/backyard-animation-studio/actions/runs/41215412467/artifacts/13047699938) is complete and contains the revised editable master and preview images. At this checkpoint the 17 animation chunks are rendering; the refreshed full MP4 has not yet been verified. The completed video linked above is the earlier source-pinned draft, not this revision.
 
 ## Other executed checks
 
