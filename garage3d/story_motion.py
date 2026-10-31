@@ -90,7 +90,7 @@ def prepare_groups(env,mech,car,props,mats):
     # A pale-blue traced discharge is a second fluid path, separate from oil.
     discharge=props['drainage_overlay']
     return {'walls':walls,'wallroot':wallroot,'rebar':rebar,'platform':platform,
-            'hardware':hardware+list(movingfamily),'drainage':[o for o in drainage if not o.name.startswith('Sump discharge')],'waterflow':discharge,
+            'hardware':hardware+list(movingfamily),'drainage':[o for o in drainage if not o.name.startswith('Sump discharge')],'waterflow':[o for o in discharge if o.type=='CURVE'],'water_tracers':[o for o in discharge if o.type=='MESH'],
             'solid_discharge':[o for o in drainage if o.name.startswith('Sump discharge')],
             'car':list(carfamily),'shell':list(set(shell)),
             'shell_alpha':[v[1] for v in shellmats.values()]}
@@ -99,9 +99,9 @@ def prepare_groups(env,mech,car,props,mats):
 def pose_garage(shot,t,seconds,state):
     camera,mech,car,p,g=state['camera'],state['mechanism'],state['car'],state['props'],state['groups']
     a=shot['action'];u=ease(t);local=seconds-shot['start'];z=0.;car_y=0.;reveal=1.;cover=0.;water=.02
-    visible={'walls':True,'hardware':True,'platform':True,'car':True,'drainage':True,
+    visible={'walls':True,'hardware':True,'platform':True,'car':True,'drainage':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},
              'guide':False,'clods':False,'excavation_fill':False,'crate_parts':False,
-             'solid_discharge':True,'sensors':False,'beam':False,'warning':False,'rain':False,'water':False,'rebar':False,'waterflow':False}
+             'solid_discharge':a in {'arrive','drainage','pinch','sensors','conceal','payoff'},'sensors':False,'beam':False,'warning':False,'rain':False,'water':False,'rebar':False,'waterflow':False,'water_tracers':False,'drainage_parts':a in {'arrive','drainage','pinch','sensors','conceal','payoff'}}
     wall_scale=1.
     if a=='arrive':
         local=t*7.0  # Normalize the choreography to this shot's declared length.
@@ -136,7 +136,7 @@ def pose_garage(shot,t,seconds,state):
         elif a=='rain':
             z=-2.1;water=.03+1.55*u;visible.update(rain=True,water=True)
         elif a=='drainage':
-            z=-2.1;water=1.58*(1-u)+.025;visible.update(water=True,waterflow=True,solid_discharge=False)
+            z=-2.1;water=1.58*(1-u)+.025;visible.update(water=True,waterflow=True,water_tracers=.12 <= t < .90,solid_discharge=False)
         elif a in ('pinch','sensors'):
             stop=.24 if a=='sensors' else .58
             z=-.40+.27*ease(min(t/stop,1))
@@ -160,6 +160,7 @@ def pose_garage(shot,t,seconds,state):
         p[key].location.x=sign*(3.20-(3.20-.725)*cover)
         p[key].location.z=-.13+.13*ease((cover-.8)/.2)
     p['water'].scale.z=water
+    p['check_valve'].rotation_euler.x=math.radians(70)*ease(t/.15)*(1-ease((t-.90)/.10)) if a=='drainage' else 0
     p['crate'].location.x=1.90-.6*ease(t/.6)
     for i,ob in enumerate(p['clods']):
         ob.location.z=-.20-3.65*ease((t-(i%6)*.05)/.55)
@@ -199,11 +200,11 @@ def bake(story,scope,scene,camera,mech,env=None,car=None,props=None,mats=None):
                     keyed_visible(objects,visible,frame,cache)
                 animated=[mech['lift'],*mech['mid_stages'],*mech['rods'],car,
                           *props['wheel_pivots'],props['cover_left'],props['cover_right'],
-                          props['water'],props['crate'],g['wallroot']]
+                          props['water'],props['crate'],props['check_valve'],g['wallroot']]
                 if vis['clods']:animated+=props['clods']
                 if vis['rain']:animated+=props['rain']
                 if vis['excavation_fill']:animated+=props['excavation_fill']
-                if vis['waterflow']:animated+=g['waterflow']
+                if vis['water_tracers']:animated+=g['water_tracers']
                 for alpha in g['shell_alpha']:alpha.keyframe_insert(data_path='default_value',frame=frame)
             else:
                 a=shot['action'];z=-2.1

@@ -26,7 +26,7 @@ stories/my-topic/
 ├── references/
 │   ├── style.md
 │   └── storyboard.jpg       # optional extra reference
-├── narration.wav           # optional recorded voice
+├── narration.m4a           # optional iPhone Voice Memos recording
 └── captions.srt            # optional authored timing
 ```
 
@@ -76,17 +76,17 @@ Camera names are `arrival`, `exterior`, `cutaway`, `hydraulics`, `drainage`, and
 
 `audio.mode: "espeak"` uses the free offline eSpeak NG voice. This makes a complete draft without an API key or subscription. It is a synthetic preview voice; it is not a cloned creator voice or a promise of studio narration. The renderer measures and fits each spoken segment to the shot timing.
 
-For a polished recorded voice, add a WAV file and select it:
+For a polished recorded voice, export a recording from iPhone Voice Memos, upload its M4A file, and select it. WAV, MP3, AAC, FLAC and OGG are also accepted; the runner converts them automatically:
 
 ```json
 "audio": {
   "mode": "file",
-  "file": "narration.wav",
+  "file": "narration.m4a",
   "captions_file": "captions.srt"
 }
 ```
 
-The recording and optional SRT belong inside the story folder. Author the recording and SRT against the declared full-story timings. Without an authored SRT, the automatic captions group the script into short phrases and estimate their timing within the measured speech windows; this is not phoneme-level or word-for-word alignment. Captions use bold white type with a black outline and camera-specific safe placement: lower for arrivals and sensors, upper on quiet wall space for mechanism close-ups and cutaways. Procedural mechanical, water, rain and warning effects are mixed automatically. `audio.mode: "none"` is available when you intentionally want no narration.
+The recording and optional SRT belong inside the story folder. Author the recording and SRT against the declared full-story timings. Without an authored SRT, the automatic captions group the script into short phrases and estimate their timing within the measured speech windows; this is not phoneme-level or word-for-word alignment. Captions use bold white type with a black outline and camera-specific safe placement: lower for arrivals, sensors and drainage, upper on quiet wall space for hydraulic close-ups and cutaways. Procedural mechanical, water, rain and warning effects are mixed automatically. `audio.mode: "none"` is available when you intentionally want no narration.
 
 ## Rendering and review
 

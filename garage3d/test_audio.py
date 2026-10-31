@@ -50,6 +50,18 @@ class AudioTests(unittest.TestCase):
             with self.assertRaises(ValueError):read_srt(p,2)
 
     @unittest.skipUnless(shutil.which('ffmpeg'),'FFmpeg not installed')
+    def test_phone_m4a_is_decoded_and_fitted(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);write_recording(root/'source.wav',2.5)
+            subprocess.run(['ffmpeg','-v','error','-y','-i',str(root/'source.wav'),'-c:a','aac',str(root/'phone.m4a')],check=True)
+            story=example('file');story['audio']['file']='phone.m4a'
+            result=prepare_audio(story,root,root/'output')
+            with wave.open(result['narration']) as audio:
+                values=array('h',audio.readframes(audio.getnframes()))
+                self.assertEqual(len(values),2*SAMPLE_RATE)
+                self.assertGreater(max(abs(v) for v in values),1000)
+
+    @unittest.skipUnless(shutil.which('ffmpeg'),'FFmpeg not installed')
     def test_silent_narration_keeps_original_foley_and_exact_duration(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);result=prepare_audio(example(),root,root/'output')

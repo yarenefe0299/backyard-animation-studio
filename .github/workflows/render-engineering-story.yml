@@ -61,6 +61,9 @@ jobs:
           for pattern in test_story.py test_audio.py test_encode.py test_pipeline.py; do
             python3 -m unittest discover -s garage3d -p "$pattern" -v
           done
+      - name: Generate narration, outlined captions and sound effects
+        run: |
+          python3 garage3d/pipeline.py audio --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE"
       - name: Build the persistent animated master
         run: |
           blender --background --threads 2 --python-exit-code 1 --python garage3d/render_story.py -- --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE" --mode build
@@ -75,9 +78,6 @@ jobs:
           python3 garage3d/denoise.py install
           python3 garage3d/denoise.py frames --input garage3d/output/story-review --output garage3d/output/story/review --pattern "preview*.png"
           cp garage3d/output/story-review/render_report.json garage3d/output/story/review/stills_report.json
-      - name: Generate narration, outlined captions and sound effects
-        run: |
-          python3 garage3d/pipeline.py audio --story "$STORY_FOLDER" --output garage3d/output/story --quality "$QUALITY" --scope "$SCOPE"
       - name: Preserve the self-contained master for render workers
         uses: actions/upload-artifact@v4
         with:

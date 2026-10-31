@@ -312,7 +312,7 @@ def prepare_audio(story, story_dir, output):
     # quiet upper wall; exterior/sensor shots keep the reference's lower zone.
     for cue in cues:
         shot=next((s for s in story['shots'] if s['start'] <= cue['start'] < s['end']),story['shots'][-1])
-        cue['caption_y']=650 if shot.get('camera') in {'hydraulics','drainage','cutaway'} else 1500
+        cue['caption_y']=650 if shot.get('camera') in {'hydraulics','cutaway'} else 1500
     srt,ass = write_captions(cues,output,story.get('title',story.get('id','Explainer')))
     soundtrack,peak,gain = _soundtrack(narration,spans,duration)
     soundtrack_path = output/'soundtrack.wav'

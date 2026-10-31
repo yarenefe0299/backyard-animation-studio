@@ -167,8 +167,8 @@ def load_story(directory):
     additional_sources = []
     if mode == 'file':
         file = _local_file(root, audio.get('file'), 'Narration audio')
-        if file.suffix.lower() != '.wav':
-            raise StoryError('Narration audio must be a .wav file')
+        if file.suffix.lower() not in {'.wav','.m4a','.mp3','.aac','.flac','.ogg'}:
+            raise StoryError('Narration audio must be WAV, M4A, MP3, AAC, FLAC or OGG')
         normalized_audio['file'] = file.relative_to(root).as_posix()
         additional_sources.append(file)
     elif 'file' in audio:

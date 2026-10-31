@@ -3,6 +3,7 @@ import bpy
 import math
 from mathutils.geometry import interpolate_bezier
 from geometry import box, cylinder, empty, pipe
+from materials import surface
 
 
 def build_mechanism(m):
@@ -94,7 +95,13 @@ def build_mechanism(m):
     box('Sump drain surround',(.7,1.8,-3.63),(.7,.5,.035),m['black'],bevel=.04)
     for i in range(11):
         box('Drain grate bar',(.4+i*.06,1.8,-3.60),(.021,.43,.03),m['steel'],bevel=.005)
-    pipe('Sump discharge pipe',[(.7,2.05,-3.58),(1.05,2.2,-3.5),(1.1,2.3,-2.5),(1.1,2.4,-.2)],.047,m['concrete'])
+    pvc=surface('White PVC drainage pipe',(.74,.75,.71),.32,noise=.0008,scale=70)
+    drain=pipe('Sump discharge pipe',[(.7,2.05,-3.58),(1.05,2.2,-3.5),(1.1,2.57,-2.7),(1.1,2.57,-1.4),(1.1,2.57,-.2)],.047,pvc)
+    bpy.context.view_layer.update()
+    for point in list(drain.data.splines[0].bezier_points)[2:]:
+        point.handle_left_type=point.handle_right_type='FREE'
+        point.handle_left=(point.co.x,point.co.y,point.co.z-.32)
+        point.handle_right=(point.co.x,point.co.y,point.co.z+.32)
     return {'lift':lift,'mid_stages':mids,'rods':rods,'pulses':pulses,'overlays':overlays}
 
 

@@ -146,6 +146,12 @@ class StoryTests(unittest.TestCase):
         (self.root/'narration.wav').write_bytes(b'RIFFchanged')
         self.assertNotEqual(before,load_story(self.root)['source_sha256'])
 
+    def test_native_phone_recording_format_is_accepted(self):
+        (self.root/'narration.m4a').write_bytes(b'validated by FFmpeg during audio preparation')
+        self.config['audio']={'mode':'file','file':'narration.m4a'}
+        self.write()
+        self.assertEqual(load_story(self.root)['audio']['file'],'narration.m4a')
+
     def test_audio_misconfiguration_rejected(self):
         for audio in ({'mode':'file'}, {'mode':'online-api'}, {'mode':'none','file':'unused.wav'},
                       {'rate':'175'}, {'mode':'espeak','unknown':True}):

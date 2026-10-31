@@ -201,6 +201,40 @@ def sensor_checks(scene,shots,lift):
     return {'first_blocked_frame':first,'movement_after_beam_blocked_m':overrun}
 
 
+def drainage_hardware_checks(scene,shots):
+    shot=next((shot for shot in shots if shot['action']=='drainage'),None)
+    if not shot:
+        return None
+    pumps=[obj for obj in scene.objects if obj.type=='EMPTY' and obj.get('story_role')=='sump_pump']
+    flaps=[obj for obj in scene.objects if obj.type=='EMPTY' and obj.get('story_role')=='check_valve_flap']
+    bodies=[obj for obj in scene.objects if obj.type=='EMPTY' and obj.get('story_role')=='check_valve_housing']
+    discs=[obj for obj in scene.objects if obj.type=='MESH' and obj.get('story_role')=='check_valve_disc']
+    assert len(pumps)==len(flaps)==len(bodies)==len(discs)==1, 'S08 needs a modeled sump pump and an operating check valve'
+    pump,flap,body,disc=pumps[0],flaps[0],bodies[0],discs[0]
+    pump_parts=geometry(pump)
+    assert len([obj for obj in pump_parts if obj.type=='MESH'])>=25, 'Pump must include its strainer, motor casing, cap, feet and fasteners'
+    assert len([obj for obj in pump_parts if obj.type=='CURVE'])>=3, 'Pump needs modeled connected outlet, handle and power lead'
+    assert disc.parent==flap, 'The visible valve disc must be attached to its animated hinge'
+    all_parts=pump_parts+geometry(body)
+    angles=[]
+    for frame in shot_frames(shot):
+        at(scene,frame)
+        assert all(not obj.hide_render for obj in all_parts), f'Drainage hardware must be visible during S08 at frame {frame}'
+        axis=(body.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
+        normal=(disc.matrix_world.to_3x3()@Vector((0,0,1))).normalized()
+        angles.append(math.acos(max(-1,min(1,axis.dot(normal)))))
+    assert angles[0]<.05 and angles[1]>.8 and angles[-1]<.05, f'Check valve must open with flow and close afterward: {angles}'
+    rain=next((value for value in shots if value['action']=='rain'),None)
+    if rain:
+        at(scene,(rain['start_frame']+rain['end_frame'])//2)
+        assert all(obj.hide_render for obj in all_parts), 'Rain problem must precede installation of the sump pump and check valve'
+    pipes=[obj for obj in scene.objects if obj.name.startswith('Sump discharge pipe')]
+    error=centreline_distance(body.matrix_world.translation,curve_segments(pipes))
+    assert error<.004, f'Check-valve body is disconnected from the actual discharge route: {error:.5f}m'
+    return {'pump_mesh_parts':len([obj for obj in pump_parts if obj.type=='MESH']),
+            'valve_disc_angles_rad':angles,'valve_pipe_alignment_error_m':error}
+
+
 def garage_checks(scene, shots):
     cars=[obj for obj in scene.objects if obj.get('asset_type')=='original_procedural_hatchback']
     assert len(cars)==1, 'One persistent car identity is required'
@@ -271,7 +305,8 @@ def garage_checks(scene, shots):
         assert max(bounds(obj)[2][1] for obj in geometry(car))<-.05, 'Entire parked car, including aerial, must fit below grade'
         drive={'driven_distance_m':finish_y-start_y,'tire_contact_max_error_m':worst_contact,'park_frame':park_frame}
     return {'pose_samples':len(all_samples),'cover_min_clearance_m':minimum_cover_clearance,
-            'arrival':drive,'guide':construction_guide_check(scene),'safety':sensor_checks(scene,shots,lift),**fluid_check(scene,all_samples)}
+            'arrival':drive,'guide':construction_guide_check(scene),'safety':sensor_checks(scene,shots,lift),
+            'drainage_hardware':drainage_hardware_checks(scene,shots),**fluid_check(scene,all_samples)}
 
 
 def lab_checks(scene,shots):

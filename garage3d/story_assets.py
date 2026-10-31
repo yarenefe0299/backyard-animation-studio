@@ -296,9 +296,16 @@ def _weather(materials):
 
 
 def _drainage(materials):
-    points=[(.7,1.80,-3.57),(.7,2.05,-3.58),(1.05,2.20,-3.50),
-            (1.10,2.30,-2.50),(1.10,2.40,-.20)]
-    line=pipe('Drainage / transparent discharge diagnostic',points,.058,materials['ghost'])
+    source=next((obj for obj in bpy.context.scene.objects
+                 if obj.type=='CURVE' and obj.name.startswith('Sump discharge pipe')),None)
+    if source is None:
+        raise RuntimeError('The drainage diagnostic requires the modeled sump discharge pipe')
+    # Copy the actual route and control handles, including the constrained riser.
+    # A second independently authored point list can drift inside walls or deck.
+    curve=source.data.copy();curve.name='Drainage / actual discharge route copy'
+    curve.materials.clear();curve.materials.append(materials['ghost']);curve.bevel_depth=.058
+    line=bpy.data.objects.new('Drainage / transparent discharge diagnostic',curve)
+    bpy.context.collection.objects.link(line);line.matrix_world=source.matrix_world.copy()
     bpy.context.view_layer.update()
     bezier=line.data.splines[0].bezier_points
     path=[]
@@ -312,6 +319,112 @@ def _drainage(materials):
     objects=[line,*[v[0] for v in tracers]]
     _hide(objects)
     return objects,tracers
+
+
+def _annulus(name, location, outer, inner, thickness, material, parent=None):
+    """A genuinely open, machined flange; the fluid bore stays unobstructed."""
+    steps=48
+    vertices=[]
+    for radius,z in [(outer,-thickness/2),(inner,-thickness/2),
+                     (outer,thickness/2),(inner,thickness/2)]:
+        vertices.extend((radius*math.cos(i*math.tau/steps),radius*math.sin(i*math.tau/steps),z) for i in range(steps))
+    faces=[]
+    for i in range(steps):
+        j=(i+1)%steps
+        faces.extend([(i,steps+i,steps+j,j),(2*steps+i,2*steps+j,3*steps+j,3*steps+i),
+                      (i,j,2*steps+j,2*steps+i),(steps+i,3*steps+i,3*steps+j,steps+j)])
+    mesh=bpy.data.meshes.new(name);mesh.from_pydata(vertices,[],faces);mesh.materials.append(material)
+    obj=bpy.data.objects.new(name,mesh);bpy.context.collection.objects.link(obj)
+    obj.location=location;obj.parent=parent
+    bevel=obj.modifiers.new('Turned flange edge radius','BEVEL');bevel.width=.003;bevel.segments=3
+    obj.modifiers.new('Machined face normals','WEIGHTED_NORMAL')
+    return obj
+
+
+def _discharge_axis(height):
+    """Locate the valve on the actual pipe spline rather than an approximate box."""
+    line=next((obj for obj in bpy.context.scene.objects if obj.name.startswith('Drainage / transparent discharge diagnostic')),None)
+    if line:
+        bpy.context.view_layer.update()
+        points=list(line.data.splines[0].bezier_points)
+        samples=[]
+        for first,last in zip(points,points[1:]):
+            samples.extend(line.matrix_world @ value for value in interpolate_bezier(first.co,first.handle_right,last.handle_left,last.co,129))
+        for first,last in zip(samples,samples[1:]):
+            if first.z <= height <= last.z and last.z-first.z > 1e-8:
+                amount=(height-first.z)/(last.z-first.z)
+                return first+(last-first)*amount,(last-first).normalized()
+    return Vector((1.1,2.285,height)),Vector((0,.05,1)).normalized()
+
+
+def _sump_hardware(materials):
+    """Submersible pump, strainer, power cord and an operating swing check valve.
+
+    The valve sits below the lowered carriage envelope. Its flap rotates around
+    its own hinge; +X rotation opens it in the upward discharge-flow direction.
+    """
+    steel,blue,black=materials['steel'],materials['blue'],materials['black']
+    pump=empty('Drainage pump / complete submersible assembly',(.7,1.8,-3.60))
+    for i in range(3):
+        angle=i*math.tau/3
+        foot=box('Drainage pump / rubber isolation foot',(.155*math.cos(angle),.155*math.sin(angle),.022),
+                 (.09,.075,.044),materials['rubber'],pump,.012)
+        foot.rotation_euler.z=angle
+    _annulus('Drainage pump / intake base ring',(0,0,.053),.181,.12,.026,steel,pump)
+    for i in range(16):
+        angle=i*math.tau/16;x=.162*math.cos(angle);y=.162*math.sin(angle)
+        cylinder('Drainage pump / open strainer bar',(x,y,.062),(x,y,.15),.007,steel,pump,16)
+    cylinder('Drainage pump / cast volute housing',(0,0,.135),(0,0,.19),.177,blue,pump)
+    cylinder('Drainage pump / sealed blue motor housing',(0,0,.18),(0,0,.37),.143,blue,pump)
+    for z in (.20,.34):
+        _annulus('Drainage pump / motor body seal',(0,0,z),.147,.135,.012,black,pump)
+    cylinder('Drainage pump / stainless motor cap',(0,0,.365),(0,0,.403),.15,steel,pump)
+    cap=_sphere('Drainage pump / domed cap',(0,0,.395),(.145,.145,.036),steel)
+    cap.parent=pump
+    for i in range(4):
+        angle=math.pi/4+i*math.pi/2;x=.112*math.cos(angle);y=.112*math.sin(angle)
+        cylinder('Drainage pump / cap fastener',(x,y,.408),(x,y,.425),.011,steel,pump,6)
+    pipe('Drainage pump / lifting handle',[(-.075,0,.413),(-.075,0,.49),(.075,0,.49),(.075,0,.413)],.014,steel,pump)
+    # This elbow meets the existing diagnostic discharge point exactly.
+    pipe('Drainage pump / connected outlet elbow',[(0,.14,.13),(0,.22,.08),(0,.25,.02)],.045,steel,pump)
+    cylinder('Drainage pump / threaded outlet collar',(0,.13,.13),(0,.19,.13),.060,materials['brass'],pump)
+    pipe('Drainage pump / sealed power lead',[(.04,.04,.43),(.14,.16,.49),(.36,.47,.49),(.70,.78,.76)],.010,black,pump)
+    box('Drainage pump / wall electrical junction',(.70,.80,.76),(.13,.07,.16),black,pump,.018)
+    for x in (.66,.74):
+        for z in (.71,.81):
+            cylinder('Drainage pump / junction cover screw',(x,.766,z),(x,.759,z),.005,steel,pump,12)
+    box('Drainage pump / tethered level switch',(.215,.02,.18),(.08,.14,.065),black,pump,.025)
+    pipe('Drainage pump / float switch lead',[(.11,.03,.38),(.24,.02,.31),(.215,.02,.20)],.006,black,pump)
+    for obj in _children(pump):obj['story_role']='sump_pump_part'
+    pump['story_role']='sump_pump'
+    pump['floor_z']=-3.60
+
+    centre,direction=_discharge_axis(-3.18)
+    body=empty('Drainage check valve / aligned housing',tuple(centre))
+    body.rotation_euler=direction.to_track_quat('Z','Y').to_euler()
+    cylinder('Drainage check valve / transparent inspection body',(0,0,-.145),(0,0,.145),.097,materials['ghost'],body)
+    for z in (-.165,.165):
+        _annulus('Drainage check valve / open stainless flange',(0,0,z),.119,.053,.026,steel,body)
+        _annulus('Drainage check valve / dark flange gasket',(0,0,z*.89),.103,.052,.014,black,body)
+    for i in range(6):
+        angle=math.pi/6+i*math.tau/6;x=.102*math.cos(angle);y=.102*math.sin(angle)
+        cylinder('Drainage check valve / housing tie bolt',(x,y,-.19),(x,y,.19),.006,steel,body,16)
+        for z in (-.187,.187):
+            cylinder('Drainage check valve / hexagonal flange nut',(x,y,z-.009),(x,y,z+.009),.012,steel,body,6)
+    _annulus('Drainage check valve / machined valve seat',(0,0,-.008),.079,.059,.013,materials['brass'],body)
+    flap=empty('Drainage check valve / hinged nonreturn flap',(0,-.064,0),body)
+    disc=cylinder('Drainage check valve / swing disc',(0,.064,-.005),(0,.064,.005),.064,materials['brass'],flap)
+    cylinder('Drainage check valve / horizontal hinge pin',(-.081,-.064,0),(.081,-.064,0),.010,steel,body)
+    for x in (-.074,.074):
+        box('Drainage check valve / hinge support',(x,-.064,-.015),(.024,.026,.056),steel,body,.007)
+    for obj in _children(body):obj['story_role']='check_valve_part'
+    body['story_role']='check_valve_housing'
+    flap['story_role']='check_valve_flap'
+    flap['open_angle_rad']=math.radians(70)
+    disc['story_role']='check_valve_disc'
+    parts=_children(pump)+_children(body)
+    _hide(parts)
+    return parts,flap,_children(body)
 
 
 def augment_garage(environment, mechanism, car, materials):
@@ -331,6 +444,7 @@ def augment_garage(environment, mechanism, car, materials):
     water,rain=_weather(materials)
     wheels=_wheel_pivots(car)
     drainage,drain_pulses=_drainage(materials)
+    drainage_parts,check_valve,check_valve_parts=_sump_hardware(materials)
     return {
         'cover_left':covers[0],'cover_right':covers[1],
         'cover_parts':_children(covers[0])+_children(covers[1]),
@@ -340,4 +454,5 @@ def augment_garage(environment, mechanism, car, materials):
         'sensors':sensors,'beam':beam,'warning':warning,
         'road':road,'wheel_pivots':wheels,
         'drainage_overlay':drainage,'drain_pulses':drain_pulses,
+        'drainage_parts':drainage_parts,'check_valve':check_valve,'check_valve_parts':check_valve_parts,
     }
