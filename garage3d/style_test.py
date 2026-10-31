@@ -59,7 +59,12 @@ def configure_scene(quality):
     scene.cycles.samples = PRESETS[quality][2]
     scene.cycles.seed = 17
     # Debian builds can omit OIDN. Never assume the denoiser is compiled in.
-    scene.cycles.use_denoising = bool(getattr(bpy.app.build_options, 'openimagedenoise', False))
+    try:
+        import _cycles
+        supports_denoising = getattr(_cycles, 'with_openimagedenoise', False)
+    except ImportError:
+        supports_denoising = False
+    scene.cycles.use_denoising = bool(supports_denoising)
     scene.cycles.max_bounces = 6
     scene.cycles.transparent_max_bounces = 8
     scene.cycles.diffuse_bounces = 3
